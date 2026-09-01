@@ -1,0 +1,2600 @@
+fileFormatVersion: 2
+guid: 7fe76b3e4eaa14b07ad522627555cc14
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8409202164680279333
+    second: 04_mask_secondary_0
+  - first:
+      213: 162980050690556348
+    second: 04_mask_secondary_1
+  - first:
+      213: 3345301893878189569
+    second: 04_mask_secondary_2
+  - first:
+      213: -1779052185847881816
+    second: 04_mask_secondary_3
+  - first:
+      213: -1548432605187094751
+    second: 04_mask_secondary_4
+  - first:
+      213: 4216041326440346018
+    second: 04_mask_secondary_5
+  - first:
+      213: -223110095062048057
+    second: 04_mask_secondary_6
+  - first:
+      213: 8455499372192688144
+    second: 04_mask_secondary_7
+  - first:
+      213: 7016426289378209158
+    second: 04_mask_secondary_8
+  - first:
+      213: 59951286804109423
+    second: 04_mask_secondary_9
+  - first:
+      213: -1106554606560598147
+    second: 04_mask_secondary_10
+  - first:
+      213: 912338786435398540
+    second: 04_mask_secondary_11
+  - first:
+      213: 907177834055056495
+    second: 04_mask_secondary_12
+  - first:
+      213: -1377644143125277205
+    second: 04_mask_secondary_13
+  - first:
+      213: 5571898183093620069
+    second: 04_mask_secondary_14
+  - first:
+      213: -2964333420609280697
+    second: 04_mask_secondary_15
+  - first:
+      213: 8835406765070073642
+    second: 04_mask_secondary_16
+  - first:
+      213: 4866402577415531256
+    second: 04_mask_secondary_17
+  - first:
+      213: 6567639435406243846
+    second: 04_mask_secondary_18
+  - first:
+      213: -4126056294042007983
+    second: 04_mask_secondary_19
+  - first:
+      213: 4581590014611164780
+    second: 04_mask_secondary_20
+  - first:
+      213: -3689988553913890101
+    second: 04_mask_secondary_21
+  - first:
+      213: 5766951227705335568
+    second: 04_mask_secondary_22
+  - first:
+      213: 2623710623157117543
+    second: 04_mask_secondary_23
+  - first:
+      213: 7739095105220179680
+    second: 04_mask_secondary_24
+  - first:
+      213: -9204536763900658581
+    second: 04_mask_secondary_25
+  - first:
+      213: 3107236186225140688
+    second: 04_mask_secondary_26
+  - first:
+      213: -8404269085648931941
+    second: 04_mask_secondary_27
+  - first:
+      213: 4308820030795628004
+    second: 04_mask_secondary_28
+  - first:
+      213: -1443868275105380942
+    second: 04_mask_secondary_29
+  - first:
+      213: -5957687645184375474
+    second: 04_mask_secondary_30
+  - first:
+      213: 1288722974934316977
+    second: 04_mask_secondary_31
+  - first:
+      213: -3212243406956008374
+    second: 04_mask_secondary_32
+  - first:
+      213: 1953102860710505573
+    second: 04_mask_secondary_33
+  - first:
+      213: 5300809630926388623
+    second: 04_mask_secondary_34
+  - first:
+      213: 6564977070525085425
+    second: 04_mask_secondary_35
+  - first:
+      213: -7538807746721361014
+    second: 04_mask_secondary_36
+  - first:
+      213: -7293789287219183334
+    second: 04_mask_secondary_37
+  - first:
+      213: -7578114607312100835
+    second: 04_mask_secondary_38
+  - first:
+      213: -7082221987574519238
+    second: 04_mask_secondary_39
+  - first:
+      213: -4323786410676739577
+    second: 04_mask_secondary_40
+  - first:
+      213: -6179875484585531839
+    second: 04_mask_secondary_41
+  - first:
+      213: -8083999781015602026
+    second: 04_mask_secondary_42
+  - first:
+      213: 4098076445794105737
+    second: 04_mask_secondary_43
+  - first:
+      213: -3026571201170670738
+    second: 04_mask_secondary_44
+  - first:
+      213: -3506507520914450175
+    second: 04_mask_secondary_45
+  - first:
+      213: -5396283407837969214
+    second: 04_mask_secondary_46
+  - first:
+      213: 1088887550867083127
+    second: 04_mask_secondary_47
+  - first:
+      213: 6646845117341001021
+    second: 04_mask_secondary_48
+  - first:
+      213: 3738591957769546383
+    second: 04_mask_secondary_49
+  - first:
+      213: -2863763093283793952
+    second: 04_mask_secondary_50
+  - first:
+      213: 1878977105495075827
+    second: 04_mask_secondary_51
+  - first:
+      213: 907957627473047330
+    second: 04_mask_secondary_52
+  - first:
+      213: -2991875604542400589
+    second: 04_mask_secondary_53
+  - first:
+      213: 4456591200193159269
+    second: 04_mask_secondary_54
+  - first:
+      213: 7055721539188747886
+    second: 04_mask_secondary_55
+  - first:
+      213: 6962878449699333653
+    second: 04_mask_secondary_56
+  - first:
+      213: 1616976969728630090
+    second: 04_mask_secondary_57
+  - first:
+      213: -4072878701150641703
+    second: 04_mask_secondary_58
+  - first:
+      213: -4591612045420038927
+    second: 04_mask_secondary_59
+  - first:
+      213: -3491219055928632417
+    second: 04_mask_secondary_60
+  - first:
+      213: -7007316109074026174
+    second: 04_mask_secondary_61
+  - first:
+      213: 8899956268725705421
+    second: 04_mask_secondary_62
+  - first:
+      213: -4218459576033832433
+    second: 04_mask_secondary_63
+  - first:
+      213: 6499165081499246255
+    second: 04_mask_secondary_64
+  - first:
+      213: -7377912538260493172
+    second: 04_mask_secondary_65
+  - first:
+      213: 6716238287410684860
+    second: 04_mask_secondary_66
+  - first:
+      213: 8361122475004847127
+    second: 04_mask_secondary_67
+  - first:
+      213: -2358238197115108179
+    second: 04_mask_secondary_68
+  - first:
+      213: 411421882560291323
+    second: 04_mask_secondary_69
+  - first:
+      213: 2659456483383962504
+    second: 04_mask_secondary_70
+  - first:
+      213: -3971481766667081664
+    second: 04_mask_secondary_71
+  - first:
+      213: 7352262676415782785
+    second: 04_mask_secondary_72
+  - first:
+      213: -7163451447223015455
+    second: 04_mask_secondary_73
+  - first:
+      213: 5376543086786996819
+    second: 04_mask_secondary_74
+  - first:
+      213: -7121566060637794323
+    second: 04_mask_secondary_75
+  - first:
+      213: 2329537984921976028
+    second: 04_mask_secondary_76
+  - first:
+      213: -5048943620680514779
+    second: 04_mask_secondary_77
+  - first:
+      213: -386192218350398322
+    second: 04_mask_secondary_78
+  - first:
+      213: 1306307573121735683
+    second: 04_mask_secondary_79
+  - first:
+      213: 2794269575162383298
+    second: 04_mask_secondary_80
+  - first:
+      213: -3118553530154575971
+    second: 04_mask_secondary_81
+  - first:
+      213: 5383777633684298451
+    second: 04_mask_secondary_82
+  - first:
+      213: -4796020294507945750
+    second: 04_mask_secondary_83
+  - first:
+      213: 8002265206026871303
+    second: 04_mask_secondary_84
+  - first:
+      213: -5013518328693229174
+    second: 04_mask_secondary_85
+  - first:
+      213: -2896113972132068875
+    second: 04_mask_secondary_86
+  - first:
+      213: 4808687333296571579
+    second: 04_mask_secondary_87
+  - first:
+      213: -7694679609400988846
+    second: 04_mask_secondary_88
+  - first:
+      213: -8454511373023269992
+    second: 04_mask_secondary_89
+  - first:
+      213: -7367620622593829574
+    second: 04_mask_secondary_90
+  - first:
+      213: -7861891845075266285
+    second: 04_mask_secondary_91
+  - first:
+      213: -2772344312233849040
+    second: 04_mask_secondary_92
+  - first:
+      213: -5184492199878759039
+    second: 04_mask_secondary_93
+  - first:
+      213: -6824176489825046806
+    second: 04_mask_secondary_94
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 0
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 0
+  spriteTessellationDetail: -1
+  textureType: 0
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 1
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: 04_mask_secondary_0
+      rect:
+        serializedVersion: 2
+        x: 718
+        y: 1845
+        width: 9
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 525c63e90dc73b470800000000000000
+      internalID: 8409202164680279333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_1
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 1607
+        width: 53
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb1c2ea1e75034200800000000000000
+      internalID: 162980050690556348
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_2
+      rect:
+        serializedVersion: 2
+        x: 353
+        y: 1708
+        width: 122
+        height: 112
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10e0d0b2956ec6e20800000000000000
+      internalID: 3345301893878189569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_3
+      rect:
+        serializedVersion: 2
+        x: 483
+        y: 1670
+        width: 21
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8af97a976798f47e0800000000000000
+      internalID: -1779052185847881816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_4
+      rect:
+        serializedVersion: 2
+        x: 617
+        y: 1717
+        width: 49
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 127c031efbcd28ae0800000000000000
+      internalID: -1548432605187094751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_5
+      rect:
+        serializedVersion: 2
+        x: 641
+        y: 1738
+        width: 47
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a1f7d4bf33628a30800000000000000
+      internalID: 4216041326440346018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_6
+      rect:
+        serializedVersion: 2
+        x: 696
+        y: 1696
+        width: 45
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c2e506fc8a57ecf0800000000000000
+      internalID: -223110095062048057
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_7
+      rect:
+        serializedVersion: 2
+        x: 720
+        y: 1633
+        width: 61
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 018651e31e7f75570800000000000000
+      internalID: 8455499372192688144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_8
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 1693
+        width: 22
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68da91b198a5f5160800000000000000
+      internalID: 7016426289378209158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_9
+      rect:
+        serializedVersion: 2
+        x: 429
+        y: 1641
+        width: 55
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6859c1b06df4d000800000000000000
+      internalID: 59951286804109423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_10
+      rect:
+        serializedVersion: 2
+        x: 505
+        y: 1715
+        width: 8
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d772267b27ab4a0f0800000000000000
+      internalID: -1106554606560598147
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_11
+      rect:
+        serializedVersion: 2
+        x: 601
+        y: 1638
+        width: 54
+        height: 99
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8bfa40ea4749ac00800000000000000
+      internalID: 912338786435398540
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_12
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 1564
+        width: 79
+        height: 91
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6cb5f20f61f69c00800000000000000
+      internalID: 907177834055056495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_13
+      rect:
+        serializedVersion: 2
+        x: 479
+        y: 1569
+        width: 71
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be5de1e63ff91ece0800000000000000
+      internalID: -1377644143125277205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_14
+      rect:
+        serializedVersion: 2
+        x: 578
+        y: 1477
+        width: 172
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56d80f750eb535d40800000000000000
+      internalID: 5571898183093620069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_15
+      rect:
+        serializedVersion: 2
+        x: 777
+        y: 1512
+        width: 93
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 745e3cca5729cd6d0800000000000000
+      internalID: -2964333420609280697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_16
+      rect:
+        serializedVersion: 2
+        x: 792
+        y: 1603
+        width: 37
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2fb51e04abad9a70800000000000000
+      internalID: 8835406765070073642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_17
+      rect:
+        serializedVersion: 2
+        x: 1709
+        y: 1272
+        width: 121
+        height: 332
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fae5e06c5fe88340800000000000000
+      internalID: 4866402577415531256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_18
+      rect:
+        serializedVersion: 2
+        x: 771
+        y: 1534
+        width: 30
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6087c380541f42b50800000000000000
+      internalID: 6567639435406243846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_19
+      rect:
+        serializedVersion: 2
+        x: 1513
+        y: 1309
+        width: 100
+        height: 127
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1568c5e49ad4db6c0800000000000000
+      internalID: -4126056294042007983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_20
+      rect:
+        serializedVersion: 2
+        x: 1539
+        y: 1276
+        width: 163
+        height: 121
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6e006f08d3159f30800000000000000
+      internalID: 4581590014611164780
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_21
+      rect:
+        serializedVersion: 2
+        x: 1619
+        y: 1373
+        width: 98
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bca84bae5f68accc0800000000000000
+      internalID: -3689988553913890101
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_22
+      rect:
+        serializedVersion: 2
+        x: 1624
+        y: 1146
+        width: 240
+        height: 254
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01f11644693580050800000000000000
+      internalID: 5766951227705335568
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_23
+      rect:
+        serializedVersion: 2
+        x: 1411
+        y: 1126
+        width: 244
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 762e2b629ea496420800000000000000
+      internalID: 2623710623157117543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_24
+      rect:
+        serializedVersion: 2
+        x: 1479
+        y: 1242
+        width: 58
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e6fc95aef9c66b60800000000000000
+      internalID: 7739095105220179680
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_25
+      rect:
+        serializedVersion: 2
+        x: 1300
+        y: 1173
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6c7da9b49ae24080800000000000000
+      internalID: -9204536763900658581
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_26
+      rect:
+        serializedVersion: 2
+        x: 1303
+        y: 857
+        width: 131
+        height: 333
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d3603939de1f1b20800000000000000
+      internalID: 3107236186225140688
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_27
+      rect:
+        serializedVersion: 2
+        x: 1719
+        y: 1116
+        width: 91
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9339195bc90e5b80800000000000000
+      internalID: -8404269085648931941
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_28
+      rect:
+        serializedVersion: 2
+        x: 1462
+        y: 1111
+        width: 27
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ed39a82df00ccb30800000000000000
+      internalID: 4308820030795628004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_29
+      rect:
+        serializedVersion: 2
+        x: 1551
+        y: 1025
+        width: 219
+        height: 101
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b543e7247956fbe0800000000000000
+      internalID: -1443868275105380942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_30
+      rect:
+        serializedVersion: 2
+        x: 1569
+        y: 1122
+        width: 9
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e454d02e6aa025da0800000000000000
+      internalID: -5957687645184375474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_31
+      rect:
+        serializedVersion: 2
+        x: 1579
+        y: 1120
+        width: 49
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b738deb7b672e110800000000000000
+      internalID: 1288722974934316977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_32
+      rect:
+        serializedVersion: 2
+        x: 437
+        y: 906
+        width: 50
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4ceb4cf3a1db63d0800000000000000
+      internalID: -3212243406956008374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_33
+      rect:
+        serializedVersion: 2
+        x: 555
+        y: 979
+        width: 103
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56ce27e24b0da1b10800000000000000
+      internalID: 1953102860710505573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_34
+      rect:
+        serializedVersion: 2
+        x: 1026
+        y: 969
+        width: 17
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8d36514642409940800000000000000
+      internalID: 5300809630926388623
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_35
+      rect:
+        serializedVersion: 2
+        x: 1034
+        y: 941
+        width: 35
+        height: 117
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f67b37ecdb7b1b50800000000000000
+      internalID: 6564977070525085425
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_36
+      rect:
+        serializedVersion: 2
+        x: 1246
+        y: 1002
+        width: 15
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a83d5b2fb46c06790800000000000000
+      internalID: -7538807746721361014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_37
+      rect:
+        serializedVersion: 2
+        x: 1265
+        y: 993
+        width: 39
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1140c4994147ca90800000000000000
+      internalID: -7293789287219183334
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_38
+      rect:
+        serializedVersion: 2
+        x: 1419
+        y: 930
+        width: 32
+        height: 108
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d12a6fb4ae025d690800000000000000
+      internalID: -7578114607312100835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_39
+      rect:
+        serializedVersion: 2
+        x: 1421
+        y: 960
+        width: 45
+        height: 143
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3ae82220a4e6bd90800000000000000
+      internalID: -7082221987574519238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_40
+      rect:
+        serializedVersion: 2
+        x: 1526
+        y: 971
+        width: 152
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 702a3fafa23def3c0800000000000000
+      internalID: -4323786410676739577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_41
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 962
+        width: 27
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14662293dfbac3aa0800000000000000
+      internalID: -6179875484585531839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_42
+      rect:
+        serializedVersion: 2
+        x: 1276
+        y: 975
+        width: 13
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69cba30b70ddfcf80800000000000000
+      internalID: -8083999781015602026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_43
+      rect:
+        serializedVersion: 2
+        x: 758
+        y: 864
+        width: 67
+        height: 103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 989f3fd90da4fd830800000000000000
+      internalID: 4098076445794105737
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_44
+      rect:
+        serializedVersion: 2
+        x: 842
+        y: 934
+        width: 24
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6b7bca27857ff5d0800000000000000
+      internalID: -3026571201170670738
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_45
+      rect:
+        serializedVersion: 2
+        x: 1220
+        y: 755
+        width: 172
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10998adecf1665fc0800000000000000
+      internalID: -3506507520914450175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_46
+      rect:
+        serializedVersion: 2
+        x: 1458
+        y: 942
+        width: 8
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c4cb70d4dc8c15b0800000000000000
+      internalID: -5396283407837969214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_47
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 845
+        width: 48
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77f07c555718c1f00800000000000000
+      internalID: 1088887550867083127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_48
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 908
+        width: 9
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d356620fa665e3c50800000000000000
+      internalID: 6646845117341001021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_49
+      rect:
+        serializedVersion: 2
+        x: 863
+        y: 840
+        width: 106
+        height: 96
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8a6cf2e39522e330800000000000000
+      internalID: 3738591957769546383
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_50
+      rect:
+        serializedVersion: 2
+        x: 1032
+        y: 756
+        width: 85
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e312f7b3aed148d0800000000000000
+      internalID: -2863763093283793952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_51
+      rect:
+        serializedVersion: 2
+        x: 1440
+        y: 859
+        width: 21
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fb2022e8b7731a10800000000000000
+      internalID: 1878977105495075827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_52
+      rect:
+        serializedVersion: 2
+        x: 817
+        y: 863
+        width: 48
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22f23a0d6a6b99c00800000000000000
+      internalID: 907957627473047330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_53
+      rect:
+        serializedVersion: 2
+        x: 988
+        y: 871
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b7d7134df8ba76d0800000000000000
+      internalID: -2991875604542400589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_54
+      rect:
+        serializedVersion: 2
+        x: 432
+        y: 492
+        width: 160
+        height: 348
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56025a4a51ef8dd30800000000000000
+      internalID: 4456591200193159269
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_55
+      rect:
+        serializedVersion: 2
+        x: 571
+        y: 780
+        width: 37
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6eea696b55fae160800000000000000
+      internalID: 7055721539188747886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_56
+      rect:
+        serializedVersion: 2
+        x: 883
+        y: 448
+        width: 180
+        height: 376
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5162d802f0d11a060800000000000000
+      internalID: 6962878449699333653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_57
+      rect:
+        serializedVersion: 2
+        x: 1031
+        y: 776
+        width: 40
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4d99a2acf7a07610800000000000000
+      internalID: 1616976969728630090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_58
+      rect:
+        serializedVersion: 2
+        x: 1069
+        y: 732
+        width: 11
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d169ac766a3a77c0800000000000000
+      internalID: -4072878701150641703
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_59
+      rect:
+        serializedVersion: 2
+        x: 1398
+        y: 789
+        width: 33
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f4755e0c215740c0800000000000000
+      internalID: -4591612045420038927
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_60
+      rect:
+        serializedVersion: 2
+        x: 1455
+        y: 503
+        width: 117
+        height: 236
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9b9c4214c2bc8fc0800000000000000
+      internalID: -3491219055928632417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_61
+      rect:
+        serializedVersion: 2
+        x: 1531
+        y: 727
+        width: 25
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24135c9002301ce90800000000000000
+      internalID: -7007316109074026174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_62
+      rect:
+        serializedVersion: 2
+        x: 541
+        y: 602
+        width: 88
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dca18e9821ff28b70800000000000000
+      internalID: 8899956268725705421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_63
+      rect:
+        serializedVersion: 2
+        x: 1037
+        y: 588
+        width: 36
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f02982fad550575c0800000000000000
+      internalID: -4218459576033832433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_64
+      rect:
+        serializedVersion: 2
+        x: 379
+        y: 418
+        width: 95
+        height: 97
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fae9263253ca13a50800000000000000
+      internalID: 6499165081499246255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_65
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 476
+        width: 14
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8c2515e2a36c9990800000000000000
+      internalID: -7377912538260493172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_66
+      rect:
+        serializedVersion: 2
+        x: 1071
+        y: 505
+        width: 25
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb3edf3632fd43d50800000000000000
+      internalID: 6716238287410684860
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_67
+      rect:
+        serializedVersion: 2
+        x: 1582
+        y: 483
+        width: 23
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 714e236879ca80470800000000000000
+      internalID: 8361122475004847127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_68
+      rect:
+        serializedVersion: 2
+        x: 491
+        y: 472
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da4423daadad54fd0800000000000000
+      internalID: -2358238197115108179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_69
+      rect:
+        serializedVersion: 2
+        x: 494
+        y: 480
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf124dab50aa5b500800000000000000
+      internalID: 411421882560291323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_70
+      rect:
+        serializedVersion: 2
+        x: 1053
+        y: 471
+        width: 26
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88be5bbc49948e420800000000000000
+      internalID: 2659456483383962504
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_71
+      rect:
+        serializedVersion: 2
+        x: 1094
+        y: 432
+        width: 38
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0482ed1006672e8c0800000000000000
+      internalID: -3971481766667081664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_72
+      rect:
+        serializedVersion: 2
+        x: 1523
+        y: 446
+        width: 59
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18f102343fb780660800000000000000
+      internalID: 7352262676415782785
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_73
+      rect:
+        serializedVersion: 2
+        x: 912
+        y: 369
+        width: 125
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e7a382ccde469c90800000000000000
+      internalID: -7163451447223015455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_74
+      rect:
+        serializedVersion: 2
+        x: 1039
+        y: 437
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35a658783715d9a40800000000000000
+      internalID: 5376543086786996819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_75
+      rect:
+        serializedVersion: 2
+        x: 1475
+        y: 388
+        width: 34
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: defc437466d1b2d90800000000000000
+      internalID: -7121566060637794323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_76
+      rect:
+        serializedVersion: 2
+        x: 1521
+        y: 398
+        width: 55
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cdcbd02747e245020800000000000000
+      internalID: 2329537984921976028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_77
+      rect:
+        serializedVersion: 2
+        x: 1593
+        y: 368
+        width: 50
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5230d56078c8ee9b0800000000000000
+      internalID: -5048943620680514779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_78
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 408
+        width: 34
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e84543a3938f3aaf0800000000000000
+      internalID: -386192218350398322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_79
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 410
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30cd25f01dfe02210800000000000000
+      internalID: 1306307573121735683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_80
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 373
+        width: 43
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2cb4c3abf5d37c620800000000000000
+      internalID: 2794269575162383298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_81
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 324
+        width: 86
+        height: 85
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d97981e461ca8b4d0800000000000000
+      internalID: -3118553530154575971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_82
+      rect:
+        serializedVersion: 2
+        x: 389
+        y: 403
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3da127dbb3507ba40800000000000000
+      internalID: 5383777633684298451
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_83
+      rect:
+        serializedVersion: 2
+        x: 1528
+        y: 384
+        width: 20
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae02a4ad3fc117db0800000000000000
+      internalID: -4796020294507945750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_84
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 305
+        width: 74
+        height: 97
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70223bb9ec1cd0f60800000000000000
+      internalID: 8002265206026871303
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_85
+      rect:
+        serializedVersion: 2
+        x: 1539
+        y: 378
+        width: 17
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a89745f84a76c6ab0800000000000000
+      internalID: -5013518328693229174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_86
+      rect:
+        serializedVersion: 2
+        x: 293
+        y: 317
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f1c506cfafeec7d0800000000000000
+      internalID: -2896113972132068875
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_87
+      rect:
+        serializedVersion: 2
+        x: 855
+        y: 294
+        width: 59
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb40011f6a3ebb240800000000000000
+      internalID: 4808687333296571579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_88
+      rect:
+        serializedVersion: 2
+        x: 914
+        y: 294
+        width: 77
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25b6635d9a1073590800000000000000
+      internalID: -7694679609400988846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_89
+      rect:
+        serializedVersion: 2
+        x: 981
+        y: 350
+        width: 19
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89ba27d33ba8baa80800000000000000
+      internalID: -8454511373023269992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_90
+      rect:
+        serializedVersion: 2
+        x: 998
+        y: 252
+        width: 56
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a35d37e3414f0c990800000000000000
+      internalID: -7367620622593829574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_91
+      rect:
+        serializedVersion: 2
+        x: 861
+        y: 273
+        width: 8
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3159fbf5503f4e290800000000000000
+      internalID: -7861891845075266285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_92
+      rect:
+        serializedVersion: 2
+        x: 867
+        y: 285
+        width: 19
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03f0a3a5987a689d0800000000000000
+      internalID: -2772344312233849040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_93
+      rect:
+        serializedVersion: 2
+        x: 912
+        y: 244
+        width: 47
+        height: 77
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18d617510dbfc08b0800000000000000
+      internalID: -5184492199878759039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 04_mask_secondary_94
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 268
+        width: 20
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aeee76773a7ab41a0800000000000000
+      internalID: -6824176489825046806
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      04_mask_secondary_0: 8409202164680279333
+      04_mask_secondary_1: 162980050690556348
+      04_mask_secondary_10: -1106554606560598147
+      04_mask_secondary_11: 912338786435398540
+      04_mask_secondary_12: 907177834055056495
+      04_mask_secondary_13: -1377644143125277205
+      04_mask_secondary_14: 5571898183093620069
+      04_mask_secondary_15: -2964333420609280697
+      04_mask_secondary_16: 8835406765070073642
+      04_mask_secondary_17: 4866402577415531256
+      04_mask_secondary_18: 6567639435406243846
+      04_mask_secondary_19: -4126056294042007983
+      04_mask_secondary_2: 3345301893878189569
+      04_mask_secondary_20: 4581590014611164780
+      04_mask_secondary_21: -3689988553913890101
+      04_mask_secondary_22: 5766951227705335568
+      04_mask_secondary_23: 2623710623157117543
+      04_mask_secondary_24: 7739095105220179680
+      04_mask_secondary_25: -9204536763900658581
+      04_mask_secondary_26: 3107236186225140688
+      04_mask_secondary_27: -8404269085648931941
+      04_mask_secondary_28: 4308820030795628004
+      04_mask_secondary_29: -1443868275105380942
+      04_mask_secondary_3: -1779052185847881816
+      04_mask_secondary_30: -5957687645184375474
+      04_mask_secondary_31: 1288722974934316977
+      04_mask_secondary_32: -3212243406956008374
+      04_mask_secondary_33: 1953102860710505573
+      04_mask_secondary_34: 5300809630926388623
+      04_mask_secondary_35: 6564977070525085425
+      04_mask_secondary_36: -7538807746721361014
+      04_mask_secondary_37: -7293789287219183334
+      04_mask_secondary_38: -7578114607312100835
+      04_mask_secondary_39: -7082221987574519238
+      04_mask_secondary_4: -1548432605187094751
+      04_mask_secondary_40: -4323786410676739577
+      04_mask_secondary_41: -6179875484585531839
+      04_mask_secondary_42: -8083999781015602026
+      04_mask_secondary_43: 4098076445794105737
+      04_mask_secondary_44: -3026571201170670738
+      04_mask_secondary_45: -3506507520914450175
+      04_mask_secondary_46: -5396283407837969214
+      04_mask_secondary_47: 1088887550867083127
+      04_mask_secondary_48: 6646845117341001021
+      04_mask_secondary_49: 3738591957769546383
+      04_mask_secondary_5: 4216041326440346018
+      04_mask_secondary_50: -2863763093283793952
+      04_mask_secondary_51: 1878977105495075827
+      04_mask_secondary_52: 907957627473047330
+      04_mask_secondary_53: -2991875604542400589
+      04_mask_secondary_54: 4456591200193159269
+      04_mask_secondary_55: 7055721539188747886
+      04_mask_secondary_56: 6962878449699333653
+      04_mask_secondary_57: 1616976969728630090
+      04_mask_secondary_58: -4072878701150641703
+      04_mask_secondary_59: -4591612045420038927
+      04_mask_secondary_6: -223110095062048057
+      04_mask_secondary_60: -3491219055928632417
+      04_mask_secondary_61: -7007316109074026174
+      04_mask_secondary_62: 8899956268725705421
+      04_mask_secondary_63: -4218459576033832433
+      04_mask_secondary_64: 6499165081499246255
+      04_mask_secondary_65: -7377912538260493172
+      04_mask_secondary_66: 6716238287410684860
+      04_mask_secondary_67: 8361122475004847127
+      04_mask_secondary_68: -2358238197115108179
+      04_mask_secondary_69: 411421882560291323
+      04_mask_secondary_7: 8455499372192688144
+      04_mask_secondary_70: 2659456483383962504
+      04_mask_secondary_71: -3971481766667081664
+      04_mask_secondary_72: 7352262676415782785
+      04_mask_secondary_73: -7163451447223015455
+      04_mask_secondary_74: 5376543086786996819
+      04_mask_secondary_75: -7121566060637794323
+      04_mask_secondary_76: 2329537984921976028
+      04_mask_secondary_77: -5048943620680514779
+      04_mask_secondary_78: -386192218350398322
+      04_mask_secondary_79: 1306307573121735683
+      04_mask_secondary_8: 7016426289378209158
+      04_mask_secondary_80: 2794269575162383298
+      04_mask_secondary_81: -3118553530154575971
+      04_mask_secondary_82: 5383777633684298451
+      04_mask_secondary_83: -4796020294507945750
+      04_mask_secondary_84: 8002265206026871303
+      04_mask_secondary_85: -5013518328693229174
+      04_mask_secondary_86: -2896113972132068875
+      04_mask_secondary_87: 4808687333296571579
+      04_mask_secondary_88: -7694679609400988846
+      04_mask_secondary_89: -8454511373023269992
+      04_mask_secondary_9: 59951286804109423
+      04_mask_secondary_90: -7367620622593829574
+      04_mask_secondary_91: -7861891845075266285
+      04_mask_secondary_92: -2772344312233849040
+      04_mask_secondary_93: -5184492199878759039
+      04_mask_secondary_94: -6824176489825046806
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
