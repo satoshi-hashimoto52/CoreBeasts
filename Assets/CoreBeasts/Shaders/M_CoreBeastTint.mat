@@ -88,7 +88,7 @@ Material:
     m_Colors:
     - White: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Emission_Color: {r: 0.25098044, g: 0.8547352, b: 0.93333334, a: 1}
+    - _Emission_Color: {r: 0.36765754, g: 0.61865354, b: 0.9622642, a: 0.72156864}
     - _Primary_Color: {r: 0.9032574, g: 0.9291376, b: 0.9622642, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _Secondary_Color: {r: 0.9198113, g: 0.95348966, b: 1, a: 1}
