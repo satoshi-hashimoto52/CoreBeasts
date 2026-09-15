@@ -1,0 +1,16 @@
+{
+    "name": "CoreBeasts.Battle",
+    "rootNamespace": "CoreBeasts.Battle",
+    "references": [
+        "CoreBeasts.Units"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

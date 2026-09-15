@@ -2,7 +2,8 @@ namespace CoreBeasts.Units
 {
     /// <summary>
     /// コアビーストの属性。
-    /// 属性間の勝敗判定（3すくみ）は本工程では実装しません。
+    /// 三すくみは Red → Green → Blue → Red の順に勝ちます。
+    /// 勝敗判定そのものは CoreBeasts.Battle の BattleRules が持ちます。
     /// </summary>
     public enum UnitAttribute
     {
