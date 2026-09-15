@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9fe45a0f76c45f28f1c7fba91b4c65e, type: 3}
+  m_Name: Roster_Test
+  m_EditorClassIdentifier:
+  isTestData: 1
+  owned:
+  - instanceId: volx_r_01
+    definition: {fileID: 11400000, guid: ce674a6a784d43babea72b75c15b8826, type: 2}
+    level: 18
+  - instanceId: volx_r_02
+    definition: {fileID: 11400000, guid: ce674a6a784d43babea72b75c15b8826, type: 2}
+    level: 7
+  - instanceId: volx_g_01
+    definition: {fileID: 11400000, guid: 2068a7e4c44d4bfd98f2b776fc6c3d06, type: 2}
+    level: 22
+  - instanceId: volx_g_02
+    definition: {fileID: 11400000, guid: 2068a7e4c44d4bfd98f2b776fc6c3d06, type: 2}
+    level: 5
+  - instanceId: volx_b_01
+    definition: {fileID: 11400000, guid: b6dd784d65484831806442674a05631b, type: 2}
+    level: 14
+  - instanceId: volx_b_02
+    definition: {fileID: 11400000, guid: b6dd784d65484831806442674a05631b, type: 2}
+    level: 30
+  - instanceId: volx_rb_01
+    definition: {fileID: 11400000, guid: af069f74e27840fc8b12de4dd22bd971, type: 2}
+    level: 11
+  - instanceId: volx_rb_02
+    definition: {fileID: 11400000, guid: af069f74e27840fc8b12de4dd22bd971, type: 2}
+    level: 26

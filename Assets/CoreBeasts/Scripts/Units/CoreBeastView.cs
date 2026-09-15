@@ -88,39 +88,21 @@ namespace CoreBeasts.Units
 
             hasLoggedMissingReference = false;
 
-            AttributePalette.AttributeColors primary =
-                palette.GetColors(primaryAttribute);
-
-            // 単属性のときは二次領域も一次属性の配色を使います。
-            AttributePalette.AttributeColors secondary = useSecondaryAttribute
-                ? palette.GetColors(secondaryAttribute)
-                : primary;
+            // 縮小立ち絵(UI)と同じ規則で解決するため、共通処理へ委譲します。
+            AttributeColorResolver.Colors colors = AttributeColorResolver.Resolve(
+                palette, primaryAttribute, useSecondaryAttribute, secondaryAttribute);
 
             propertyBlock ??= new MaterialPropertyBlock();
 
             // 既存のブロック内容を保ったまま色だけを差し替えます。
             spriteRenderer.GetPropertyBlock(propertyBlock);
 
-            propertyBlock.SetColor(
-                PrimaryColorId,
-                ToRenderColor(primary.PrimaryColor)
-            );
-
-            propertyBlock.SetColor(
-                SecondaryColorId,
-                ToRenderColor(secondary.SecondaryColor)
-            );
+            propertyBlock.SetColor(PrimaryColorId, ToRenderColor(colors.Primary));
+            propertyBlock.SetColor(SecondaryColorId, ToRenderColor(colors.Secondary));
 
             // 発光は混色せず、一次属性側をそのまま使います。
-            propertyBlock.SetColor(
-                EmissionColorId,
-                ToRenderColor(primary.EmissionColor)
-            );
-
-            propertyBlock.SetFloat(
-                EmissionStrengthId,
-                primary.EmissionStrength
-            );
+            propertyBlock.SetColor(EmissionColorId, ToRenderColor(colors.Emission));
+            propertyBlock.SetFloat(EmissionStrengthId, colors.EmissionStrength);
 
             spriteRenderer.SetPropertyBlock(propertyBlock);
         }

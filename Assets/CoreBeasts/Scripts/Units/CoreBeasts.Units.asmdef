@@ -1,7 +1,10 @@
 {
     "name": "CoreBeasts.Units",
     "rootNamespace": "CoreBeasts.Units",
-    "references": [],
+    "references": [
+        "UnityEngine.UI",
+        "Unity.TextMeshPro"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
