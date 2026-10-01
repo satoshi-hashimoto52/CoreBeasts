@@ -4,6 +4,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace CoreBeasts.Units.Tests
 {
@@ -540,18 +541,42 @@ namespace CoreBeasts.Units.Tests
             Assert.That(frame, Is.Not.Null, "黄色枠は残っている必要があります。");
         }
 
+        /// <summary>
+        /// 以前はここで VisualRoot の Canvas が有効かを見ていました。
+        /// 前面化をやめて Canvas 自体を外したため、
+        /// 本来の保証である「Bind後もカードが描画される」ことを直接確かめます。
+        /// </summary>
         [Test]
-        public void CardCanvasStaysEnabledAfterBinding()
+        public void CardStaysRenderableAfterBinding()
         {
             foreach (BeastCardView card in Cards())
             {
-                Canvas canvas = card.transform.Find("VisualRoot").GetComponent<Canvas>();
-
-                Assert.That(canvas, Is.Not.Null);
                 Assert.That(
-                    canvas.enabled,
-                    Is.True,
-                    "Bind後もCanvasは有効のままである必要があります。");
+                    card.transform.Find("VisualRoot"),
+                    Is.Not.Null,
+                    "VisualRoot がありません。");
+
+                Assert.That(
+                    card.GetComponentsInChildren<Canvas>(true),
+                    Is.Empty,
+                    "カードは前面化しないため、ネストしたCanvasを持ちません。");
+
+                int renderable = 0;
+
+                foreach (Graphic graphic in card.GetComponentsInChildren<Graphic>(true))
+                {
+                    if (graphic.gameObject.activeInHierarchy
+                        && graphic.enabled
+                        && graphic.canvas != null)
+                    {
+                        renderable++;
+                    }
+                }
+
+                Assert.That(
+                    renderable,
+                    Is.GreaterThan(0),
+                    "Bind後に描画可能なGraphicが1つもありません（カードが消えます）。");
             }
         }
     }

@@ -1,12 +1,14 @@
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace CoreBeasts.Units
 {
     /// <summary>
-    /// ドラッグ中に指へ追従する半透明表示。
+    /// ドラッグ中に指へ追従する表示。
     /// 元のカードは動かさず、これを最前面へ生成して動かします。
+    ///
+    /// 出すのはキャラクター画像だけです。
+    /// 背景カード・名前・レベル・属性チップ・編成済みチェックは持ちません。
+    /// 属性の見分けは<see cref="BeastThumbnailView"/>のPrimary / Secondary着色が担います。
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class DragGhostView : MonoBehaviour
@@ -14,9 +16,9 @@ namespace CoreBeasts.Units
         [SerializeField] private RectTransform rectTransform;
         [SerializeField] private CanvasGroup canvasGroup;
         [SerializeField] private BeastThumbnailView thumbnail;
-        [SerializeField] private Image attributeChip;
-        [SerializeField] private TMP_Text attributeLabel;
-        [SerializeField] private TMP_Text nameLabel;
+
+        /// <summary>着色済みの立ち絵（確認・テスト用）。</summary>
+        public BeastThumbnailView Thumbnail => thumbnail;
 
         private void Awake()
         {
@@ -44,27 +46,9 @@ namespace CoreBeasts.Units
                 return;
             }
 
-            CoreBeastDefinition definition = beast.Definition;
-
-            if (nameLabel != null)
-            {
-                nameLabel.text = definition.DisplayName;
-            }
-
-            if (attributeLabel != null && text != null)
-            {
-                attributeLabel.text = text.BuildAttributeSymbol(definition);
-            }
-
-            if (attributeChip != null && palette != null)
-            {
-                attributeChip.color =
-                    palette.GetColors(definition.PrimaryAttribute).PrimaryColor;
-            }
-
             if (thumbnail != null)
             {
-                thumbnail.Show(definition, palette);
+                thumbnail.Show(beast.Definition, palette);
             }
         }
 

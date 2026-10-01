@@ -28,18 +28,14 @@ namespace CoreBeasts.Battle
 
             CoreBeastDefinition definition = owned.Definition;
 
-            unit = definition.HasSecondaryAttribute
-                ? new BattleUnit(
-                    owned.InstanceId,
-                    definition.PrimaryAttribute,
-                    definition.SecondaryAttribute,
-                    definition.Power)
-                : new BattleUnit(
-                    owned.InstanceId,
-                    definition.PrimaryAttribute,
-                    definition.Power);
+            // 色別POWERとCOREをそのまま渡します。
+            // 共通POWERという1つの数字はもう作りません。
+            unit = new BattleUnit(
+                owned.InstanceId,
+                definition.AttributePowers,
+                definition.Core);
 
-            return true;
+            return unit.Validate() == BattleError.None;
         }
 
         /// <summary>

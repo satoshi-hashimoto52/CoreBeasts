@@ -112,46 +112,54 @@ namespace CoreBeasts.Battle.Tests
                 Cpu(attribute, 50));
 
             Assert.That(outcome.Winner, Is.EqualTo(RoundWinner.Draw));
-            Assert.That(outcome.Decision, Is.EqualTo(RoundDecision.PowerComparison));
+
+            // POWERもCOREも差が付かなかったので Draw です。
+            Assert.That(outcome.Decision, Is.EqualTo(RoundDecision.Draw));
             Assert.That(outcome.IsDraw, Is.True);
         }
 
         [Test]
-        public void DualVersusSingle_AttributeThatBeatsWholeOpponent_WinsByAttribute()
+        public void DualVersusSingle_WinsWithAnyFavourableColour()
         {
-            // Red/Blue vs Green : Red は相手の全属性(Green)に勝つ。
-            // Green は Blue に勝つが Red には勝てないため、相手側は属性有利にならない。
+            // Red/Blue vs Green : Red が Green に勝ちます。
+            // Blue が Green に負けていても相殺しません。
+            // 2色は相手へ有利な色を選んで戦えるものとして扱います。
             RoundOutcome outcome = BattleRules.ResolveRound(
-                TestBattleUnits.Dual("player", UnitAttribute.Red, UnitAttribute.Blue, 1),
+                TestBattleUnits.Dual("player", UnitAttribute.Red, UnitAttribute.Blue, 1, 1),
                 Cpu(UnitAttribute.Green, 999));
 
             Assert.That(outcome.Winner, Is.EqualTo(RoundWinner.Player));
             Assert.That(outcome.Decision, Is.EqualTo(RoundDecision.AttributeAdvantage));
+            Assert.That(outcome.DecidingAttribute, Is.EqualTo(UnitAttribute.Red));
         }
 
         [Test]
-        public void SingleVersusDual_DualSideWinsByAttribute()
+        public void SingleVersusDual_WinsForTheDualSideFromEitherSide()
         {
-            // 前のテストの表裏。左右を入れ替えても同じ結論になります。
+            // 前のテストの表裏。左右を入れ替えても 2色側が勝ちます。
             RoundOutcome outcome = BattleRules.ResolveRound(
                 Player(UnitAttribute.Green, 999),
-                TestBattleUnits.Dual("cpu", UnitAttribute.Red, UnitAttribute.Blue, 1));
+                TestBattleUnits.Dual("cpu", UnitAttribute.Red, UnitAttribute.Blue, 1, 1));
 
             Assert.That(outcome.Winner, Is.EqualTo(RoundWinner.Cpu));
             Assert.That(outcome.Decision, Is.EqualTo(RoundDecision.AttributeAdvantage));
+            Assert.That(outcome.DecidingAttribute, Is.EqualTo(UnitAttribute.Red));
         }
 
         [Test]
-        public void DualVersusDual_MutualAdvantageRelations_ComparePower()
+        public void DualVersusDual_DifferentPairs_AreDecidedBySurplusColours()
         {
-            // Red/Blue vs Green/Blue : Red は Green に、Green は Blue に有利。
-            // どちらも相手の全属性は制圧できないため、相性は付かずPOWER比較になります。
+            // Red/Blue vs Green/Blue : 共通色は Blue。
+            // 残った Red VS Green を三すくみで比べ、Red が勝ちます。
+            // POWERは使いません（相手のほうが高くても結果は変わりません）。
             RoundOutcome outcome = BattleRules.ResolveRound(
-                TestBattleUnits.Dual("player", UnitAttribute.Red, UnitAttribute.Blue, 60),
-                TestBattleUnits.Dual("cpu", UnitAttribute.Green, UnitAttribute.Blue, 40));
+                TestBattleUnits.Dual("player", UnitAttribute.Red, UnitAttribute.Blue, 1, 1),
+                TestBattleUnits.Dual("cpu", UnitAttribute.Green, UnitAttribute.Blue, 99, 99));
 
             Assert.That(outcome.Winner, Is.EqualTo(RoundWinner.Player));
-            Assert.That(outcome.Decision, Is.EqualTo(RoundDecision.PowerComparison));
+            Assert.That(outcome.Decision, Is.EqualTo(RoundDecision.AttributeAdvantage));
+            Assert.That(outcome.SharedAttribute, Is.EqualTo(UnitAttribute.Blue));
+            Assert.That(outcome.DecidingAttribute, Is.EqualTo(UnitAttribute.Red));
         }
 
         [Test]
@@ -174,20 +182,21 @@ namespace CoreBeasts.Battle.Tests
                 TestBattleUnits.Dual("cpu", UnitAttribute.Red, UnitAttribute.Blue, 50));
 
             Assert.That(outcome.Winner, Is.EqualTo(RoundWinner.Draw));
-            Assert.That(outcome.Decision, Is.EqualTo(RoundDecision.PowerComparison));
+            Assert.That(outcome.Decision, Is.EqualTo(RoundDecision.Draw));
         }
 
         [Test]
         public void NoAdvantageOnEitherSide_SamePower_IsRoundDraw()
         {
-            // Red/Green vs Red : Red も Green も相手(Red)に勝てず、
-            // Red も Red/Green の全属性には勝てないため、有利は双方に無い。
+            // Red/Green vs Red : 共通色は Red。余剰色 Green は Red に勝てません。
+            // ただし単色側の属性勝ちにはせず、共通色 Red のPOWER勝負へ移ります。
             RoundOutcome outcome = BattleRules.ResolveRound(
-                TestBattleUnits.Dual("player", UnitAttribute.Red, UnitAttribute.Green, 50),
+                TestBattleUnits.Dual("player", UnitAttribute.Red, UnitAttribute.Green, 50, 50),
                 Cpu(UnitAttribute.Red, 50));
 
             Assert.That(outcome.Winner, Is.EqualTo(RoundWinner.Draw));
-            Assert.That(outcome.Decision, Is.EqualTo(RoundDecision.PowerComparison));
+            Assert.That(outcome.Decision, Is.EqualTo(RoundDecision.Draw));
+            Assert.That(outcome.SharedAttribute, Is.EqualTo(UnitAttribute.Red));
         }
 
         [Test]
@@ -232,18 +241,17 @@ namespace CoreBeasts.Battle.Tests
         }
 
         [Test]
-        public void DualWithRepeatedAttribute_BehavesLikeSingleAttribute()
+        public void DualWithRepeatedAttribute_IsRejectedAsInvalidData()
         {
-            RoundOutcome dual = BattleRules.ResolveRound(
-                TestBattleUnits.Dual("player", UnitAttribute.Red, UnitAttribute.Red, 50),
-                Cpu(UnitAttribute.Green, 50));
+            // 同じ色を2回持つ個体は仕様で禁止です。
+            // 黙って単色として扱わず、検証で弾きます。
+            BattleUnit repeated = TestBattleUnits.Dual(
+                "player", UnitAttribute.Red, UnitAttribute.Red, 50, 50);
 
-            RoundOutcome single = BattleRules.ResolveRound(
-                Player(UnitAttribute.Red, 50),
-                Cpu(UnitAttribute.Green, 50));
-
-            Assert.That(dual.Winner, Is.EqualTo(single.Winner));
-            Assert.That(dual.Decision, Is.EqualTo(single.Decision));
+            Assert.That(
+                repeated.Validate(),
+                Is.EqualTo(BattleError.InvalidAttributeLoadout),
+                "同じ色の重複を受け入れてはいけません。");
         }
 
         [Test]

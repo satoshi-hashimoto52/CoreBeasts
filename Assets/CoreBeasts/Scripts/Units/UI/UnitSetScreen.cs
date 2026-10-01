@@ -39,7 +39,13 @@ namespace CoreBeasts.Units
         [SerializeField] private TMP_Text squadHeadingLabel;
         [SerializeField] private TMP_Text saveButtonLabel;
 
-        [Header("Save")]
+        [Header("Set status chip")]
+        [Tooltip(
+            "MY SQUAD見出しの右に出す SET 表示。切り替えは未実装のため操作にはしません。" +
+            "将来セット切替を入れるときは、この根へButtonを足せば済みます。")]
+        [SerializeField] private RectTransform setChip;
+
+        [Header("Bottom action dock")]
         [SerializeField] private Button saveButton;
 
         [Header("Diagnostics")]
@@ -52,6 +58,12 @@ namespace CoreBeasts.Units
         private OwnedCoreBeast draggingBeast;
         private bool dropHandled;
 
+        /// <summary>ドラッグ1回ごとに増える通し番号。</summary>
+        private int dragSessionId;
+
+        /// <summary>終了処理を済ませたドラッグの通し番号。</summary>
+        private int finishedDragSessionId;
+
         private readonly List<RaycastResult> raycastResults =
             new List<RaycastResult>();
 
@@ -60,7 +72,9 @@ namespace CoreBeasts.Units
 
         private void Awake()
         {
-            repository = new InMemorySquadRepository();
+            // 保存先はアプリ内で共有します。ここで自前に作ると、
+            // 保存した編成をBattle画面から読めません。
+            repository = SquadRepositoryProvider.Shared;
             editor = new SquadEditor(formation);
 
             GestureLog.Enabled = logGestureEvents;
@@ -120,6 +134,9 @@ namespace CoreBeasts.Units
                 return;
             }
 
+            // 開始1回につき通し番号を1つ進めます。終了処理はこの番号で1回に限ります。
+            dragSessionId++;
+
             draggingBeast = beast;
             dropHandled = false;
 
@@ -140,36 +157,76 @@ namespace CoreBeasts.Units
             }
         }
 
+        /// <summary>
+        /// ドラッグ終了。ドロップ成否に関わらず呼ばれます。
+        ///
+        /// 呼び出し元は1回の操作で複数あります。
+        /// Unity は離した瞬間に OnPointerUp → OnDrop → OnEndDrag の順で配送し、
+        /// さらに一覧の作り直しで BeastCardView.OnDisable からも届きます。
+        /// そのため通し番号で「開始1回に対して終了処理1回」に限ります。
+        ///
+        /// 順序が重要です。
+        /// 表示(Ghost)を消すことと、Drop判定に要る情報を捨てることは別物です。
+        /// 判定材料（対象個体と離した位置）を先に退避してから表示を消します。
+        /// </summary>
         public void OnCardDragEnd(OwnedCoreBeast beast, PointerEventData eventData)
         {
-            // SquadSlotView.OnDropが飛ばない場合に備え、
-            // 指の下を自前のRaycastAllでも調べます。
-            if (!dropHandled)
+            if (dragSessionId == finishedDragSessionId)
             {
-                TryDropByRaycast(eventData);
+                // 2回目以降。表示の後始末だけ行い、編成には触れません。
+                if (dragGhost != null)
+                {
+                    dragGhost.Hide();
+                }
+
+                return;
             }
 
-            draggingBeast = null;
-            dropHandled = false;
+            finishedDragSessionId = dragSessionId;
 
+            // 1. Drop判定に必要な情報を退避します。表示を消す前に確保します。
+            OwnedCoreBeast dropped = draggingBeast;
+            PointerEventData releasedAt = eventData;
+            bool placedAlready = dropHandled;
+
+            // 2. ドラッグ表示だけを即時に消します。判定材料は消しません。
             if (dragGhost != null)
             {
                 dragGhost.Hide();
             }
 
-            squadBar.ClearHighlights();
+            // 3. 退避した eventData で Drop 先を判定します。
+            // 4. 有効な SquadSlot なら登録します。
+            //    SquadSlotView.OnDrop が飛ばない場合の保険です。
+            //    eventData が無いのは中断（カード破棄など）で、その場合は配置しません。
+            if (!placedAlready && releasedAt != null && dropped != null)
+            {
+                TryDropByRaycast(releasedAt, dropped);
+            }
+
+            // 5. 最後にドラッグ状態をクリアします。
+            draggingBeast = null;
+            dropHandled = false;
+
+            if (squadBar != null)
+            {
+                squadBar.ClearHighlights();
+            }
 
             // 元カードの見た目を、選択状態に合わせて戻します。
-            rosterGrid.SetSelected(editor.Selected);
+            if (rosterGrid != null && editor != null)
+            {
+                rosterGrid.SetSelected(editor.Selected);
+            }
         }
 
         /// <summary>
         /// 指の位置をRaycastAllし、最初に見つかったSquadSlotViewへ配置します。
         /// 枠が見つからなければ編成は変更しません。
         /// </summary>
-        private bool TryDropByRaycast(PointerEventData eventData)
+        private bool TryDropByRaycast(PointerEventData eventData, OwnedCoreBeast beast)
         {
-            if (eventData == null || EventSystem.current == null)
+            if (eventData == null || beast == null || EventSystem.current == null)
             {
                 return false;
             }
@@ -202,16 +259,15 @@ namespace CoreBeasts.Units
                 GestureLog.Write(
                     "UnitSetScreen", "RaycastAll:slot found", eventData, 0f, 0f,
                     CardGestureState.SquadDragging,
-                    draggingBeast != null ? draggingBeast.InstanceId : null,
+                    beast.InstanceId,
                     slot.SlotIndex);
 
-                return ApplyDrop(slot.SlotIndex);
+                return ApplyDrop(slot.SlotIndex, beast);
             }
 
             GestureLog.Write(
                 "UnitSetScreen", "RaycastAll:no slot", eventData, 0f, 0f,
-                CardGestureState.SquadDragging,
-                draggingBeast != null ? draggingBeast.InstanceId : null, -1);
+                CardGestureState.SquadDragging, beast.InstanceId, -1);
 
             return false;
         }
@@ -246,18 +302,22 @@ namespace CoreBeasts.Units
                 CardGestureState.SquadDragging,
                 draggingBeast != null ? draggingBeast.InstanceId : null, slotIndex);
 
-            ApplyDrop(slotIndex);
+            ApplyDrop(slotIndex, draggingBeast);
         }
 
-        /// <summary>ドラッグ中の個体を枠へ適用します。</summary>
-        private bool ApplyDrop(int slotIndex)
+        /// <summary>
+        /// 指定の個体を枠へ適用します。
+        /// 対象は引数で受け取ります。draggingBeast を読むと、
+        /// 終了処理の途中で消えている場合に配置できなくなるためです。
+        /// </summary>
+        private bool ApplyDrop(int slotIndex, OwnedCoreBeast beast)
         {
-            if (draggingBeast == null)
+            if (beast == null)
             {
                 return false;
             }
 
-            bool changed = editor.DropOnSlot(slotIndex, draggingBeast);
+            bool changed = editor.DropOnSlot(slotIndex, beast);
 
             if (changed)
             {
@@ -266,14 +326,14 @@ namespace CoreBeasts.Units
                 squadBar.FlashSlot(slotIndex);
 
                 // 配置した個体を選択状態にし、上部詳細も更新します。
-                editor.Select(draggingBeast);
-                detailPanel.Show(draggingBeast);
+                editor.Select(beast);
+                detailPanel.Show(beast);
             }
 
             GestureLog.Write(
                 "UnitSetScreen", changed ? "Assign:changed" : "Assign:no change",
                 null, 0f, 0f, CardGestureState.SquadDragging,
-                draggingBeast.InstanceId, slotIndex);
+                beast.InstanceId, slotIndex);
 
             return changed;
         }
@@ -293,6 +353,7 @@ namespace CoreBeasts.Units
                 ReferenceCheck.Of(nameof(squadBar), squadBar),
                 ReferenceCheck.Of(nameof(toast), toast),
                 ReferenceCheck.Of(nameof(dragGhost), dragGhost),
+                ReferenceCheck.Of(nameof(setChip), setChip),
                 ReferenceCheck.Of(nameof(saveButton), saveButton));
         }
 

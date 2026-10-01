@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
+using CoreBeasts.Units;
+
 namespace CoreBeasts.Battle
 {
     /// <summary>
@@ -18,7 +20,7 @@ namespace CoreBeasts.Battle
     /// </summary>
     public sealed class BattleSession
     {
-        /// <summary>マッチ勝利に必要な勝利数。</summary>
+        /// <summary>この勝利数へ到達した時点で即勝利。</summary>
         public const int WinsRequired = 4;
 
         /// <summary>1マッチの最大ラウンド数。</summary>
@@ -82,6 +84,16 @@ namespace CoreBeasts.Battle
         /// <summary>CPUが今ラウンドの選出を済ませたか。どの個体かは公開しません。</summary>
         public bool HasCpuSelected => pendingCpuUnit != null;
 
+        /// <summary>
+        /// CPUが今ラウンドに選んだ個体のID。まだなら null。
+        ///
+        /// 公平性（プレイヤーより先に確定していること）を確かめるためだけのもので、
+        /// <c>internal</c> にしてテストアセンブリからしか見えないようにしています。
+        /// 画面へ出すと Reveal 前に次の敵が分かってしまうため、UI からは触れません。
+        /// </summary>
+        internal string PendingCpuInstanceId =>
+            pendingCpuUnit != null ? pendingCpuUnit.InstanceId : null;
+
         /// <summary>プレイヤーが今ラウンドに選んだ個体。未選出なら null。</summary>
         public BattleUnit SelectedPlayerUnit => pendingPlayerUnit;
 
@@ -94,6 +106,28 @@ namespace CoreBeasts.Battle
         /// <summary>プレイヤーの未使用個体。呼ぶたびに読み取り専用の新しい一覧を返します。</summary>
         public IReadOnlyList<BattleUnit> PlayerAvailableUnits =>
             CreateAvailableUnits(playerSquad, usedPlayerIds);
+
+        /// <summary>
+        /// 敵の残存戦力を、方針に応じた読み取りとして返します。
+        ///
+        /// 個体そのものは渡しません。画面は返ってきた値を出すだけで、
+        /// 誰が次に出るかを計算することはできません。
+        ///
+        /// 使用済みになるのはラウンドを解決したときだけです。
+        /// 選出しただけ（Pending）では残存数は減りません。
+        /// </summary>
+        public EnemyForceReadout DescribeEnemyForce(
+            EnemyForceDisclosure policy = EnemyForceDisclosure.FullComposition,
+            int revealCompositions = 0,
+            IReadOnlyList<UnitAttribute> revealAttributeCounts = null)
+        {
+            return EnemyForceModel.Build(
+                CreateAvailableUnits(cpuSquad, usedCpuIds),
+                MaxRounds,
+                policy,
+                revealCompositions,
+                revealAttributeCounts);
+        }
 
         /// <summary>指定個体をプレイヤーが使用済みか。</summary>
         public bool IsPlayerUnitUsed(string instanceId)
@@ -243,22 +277,129 @@ namespace CoreBeasts.Battle
 
         private void UpdateState()
         {
-            if (PlayerWins >= WinsRequired)
+            State = EvaluateMatchState(
+                PlayerWins,
+                CpuWins,
+                history.Count,
+                MaxRounds);
+        }
+
+        /// <summary>
+        /// マッチの決着判定。状態を持たない純粋関数です。
+        /// 同じ入力からは常に同じ結果を返し、ここ以外で勝敗を数え直しません。
+        ///
+        /// 判定の順序:
+        ///   1. どちらかが<see cref="WinsRequired"/>勝へ到達したら、その時点で勝利
+        ///   2. 残り全勝しても相手が追いつけないなら、その時点で勝利
+        ///      （「同点へ追いつける」可能性が残っているあいだは終わりません）
+        ///   3. まだラウンドが残っていれば進行中
+        ///   4. 使い切っていれば、単純に勝利数を比べる。同数だけが引き分け
+        ///
+        /// ラウンドの引き分けはどちらの勝利数にも入りません。
+        /// そのため 3勝2敗2分は「3 &gt; 2」でプレイヤーの勝ちになり、
+        /// 3勝3敗1分のような同数だけが引き分けになります。
+        /// </summary>
+        /// <param name="playerWins">プレイヤーのラウンド勝利数。</param>
+        /// <param name="cpuWins">CPUのラウンド勝利数。</param>
+        /// <param name="completedRounds">解決済みのラウンド数。</param>
+        /// <param name="maxRounds">1マッチの最大ラウンド数。</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// 実際の進行では起こり得ない値を渡した場合。
+        /// 黙って辻褄を合わせると誤った勝敗をそのまま表示してしまうため、
+        /// ここで止めます。
+        /// </exception>
+        public static BattleMatchState EvaluateMatchState(
+            int playerWins,
+            int cpuWins,
+            int completedRounds,
+            int maxRounds)
+        {
+            if (maxRounds <= 0)
             {
-                State = BattleMatchState.PlayerWin;
-                return;
+                throw new ArgumentOutOfRangeException(
+                    nameof(maxRounds), maxRounds, "最大ラウンド数は1以上です。");
             }
 
-            if (CpuWins >= WinsRequired)
+            if (playerWins < 0)
             {
-                State = BattleMatchState.CpuWin;
-                return;
+                throw new ArgumentOutOfRangeException(
+                    nameof(playerWins), playerWins, "勝利数は負になりません。");
             }
 
-            if (history.Count >= MaxRounds)
+            if (cpuWins < 0)
             {
-                State = BattleMatchState.Draw;
+                throw new ArgumentOutOfRangeException(
+                    nameof(cpuWins), cpuWins, "勝利数は負になりません。");
             }
+
+            if (completedRounds < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(completedRounds),
+                    completedRounds,
+                    "完了ラウンド数は負になりません。");
+            }
+
+            if (completedRounds > maxRounds)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(completedRounds),
+                    completedRounds,
+                    "完了ラウンド数が最大ラウンド数を超えています。");
+            }
+
+            if (playerWins + cpuWins > completedRounds)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(completedRounds),
+                    completedRounds,
+                    "勝利数の合計が完了ラウンド数を超えています。" +
+                    "引き分けは勝利数へ数えません。");
+            }
+
+            int remainingRounds = maxRounds - completedRounds;
+
+            // 1. 先取到達。
+            if (playerWins >= WinsRequired)
+            {
+                return BattleMatchState.PlayerWin;
+            }
+
+            if (cpuWins >= WinsRequired)
+            {
+                return BattleMatchState.CpuWin;
+            }
+
+            // 2. 残り全勝でも追いつけないなら確定。
+            //    等号では終わりません（同点まで追いつける余地が残っています）。
+            if (playerWins > cpuWins + remainingRounds)
+            {
+                return BattleMatchState.PlayerWin;
+            }
+
+            if (cpuWins > playerWins + remainingRounds)
+            {
+                return BattleMatchState.CpuWin;
+            }
+
+            // 3. まだ戦えるなら続行。リードしているだけでは終わりません。
+            if (remainingRounds > 0)
+            {
+                return BattleMatchState.InProgress;
+            }
+
+            // 4. 使い切ったので勝利数を比べます。同数だけが引き分けです。
+            if (playerWins > cpuWins)
+            {
+                return BattleMatchState.PlayerWin;
+            }
+
+            if (cpuWins > playerWins)
+            {
+                return BattleMatchState.CpuWin;
+            }
+
+            return BattleMatchState.Draw;
         }
 
         private static IReadOnlyList<BattleUnit> CreateAvailableUnits(

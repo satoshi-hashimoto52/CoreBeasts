@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -27,7 +28,10 @@ namespace CoreBeasts.Units.Tests
         [SetUp]
         public void SetUp()
         {
-            scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Additive);
+            // Additive だと、直前のテストが開いたシーンと同居して
+            // Global Light 2D が2つになり、URP 2D が Error を出します。
+            // NUnit は想定外の Error ログを失敗として扱うため、常に単独で開きます。
+            scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             Assume.That(scene.IsValid(), Is.True, ScenePath + " を開けません。");
         }
 
@@ -44,9 +48,12 @@ namespace CoreBeasts.Units.Tests
 
             spawned.Clear();
 
-            if (scene.IsValid() && scene.isLoaded)
+            // 最後の1枚を閉じると Unity が
+            // 「Unloading the last loaded scene ... is not supported」を出します。
+            // 次の SetUp が Single で開き直すので、1枚だけのときは残しておきます。
+            // 保存はしないため、テスト操作はシーンへ残りません。
+            if (scene.IsValid() && scene.isLoaded && SceneManager.sceneCount > 1)
             {
-                // 保存せずに閉じるため、テスト操作はシーンへ残りません。
                 EditorSceneManager.CloseScene(scene, true);
             }
         }
@@ -189,7 +196,7 @@ namespace CoreBeasts.Units.Tests
                 Assert.That(card, Is.Not.Null);
                 AssertAssigned(card,
                     "liftView", "background", "selectionFrame", "thumbnail",
-                    "attributeChip", "attributeLabel", "nameLabel",
+                    "attributeSurface", "nameLabel",
                     "levelLabel", "squadBadge");
 
                 CardLiftView lift = (CardLiftView)GetField(card, "liftView");
@@ -242,13 +249,13 @@ namespace CoreBeasts.Units.Tests
                 "detailPanel", "rosterGrid", "squadBar", "toast", "dragGhost",
                 "homeButtonLabel", "screenTitleLabel", "setNameLabel",
                 "rosterHeadingLabel", "squadHeadingLabel", "saveButtonLabel",
-                "saveButton");
+                "setChip", "saveButton");
 
             AssertAssigned(FindOne<BeastDetailPanel>(),
                 "portraitView", "portraitRoot", "nameLabel", "levelLabel",
                 "costLabel", "attributeLabel", "powerLabel", "coreLabel",
                 "skillNameLabel", "skillDescriptionLabel",
-                "attributeChip", "powerGauge", "coreGauge", "palette", "text");
+                "attributeChip", "coreIcon", "palette", "text");
 
             AssertAssigned(FindOne<DragGhostPresenter>(),
                 "ghostRoot", "ghostPrefab", "canvas");
@@ -257,6 +264,395 @@ namespace CoreBeasts.Units.Tests
                 "portraitCamera", "targetImage");
 
             AssertAssigned(FindOne<ToastLabel>(), "canvasGroup", "label");
+        }
+
+        // ---------------- 下部 Action Dock ----------------
+
+        /// <summary>
+        /// Safe Area の内側かどうか。SafeAreaController は asmdef の外
+        /// （Assembly-CSharp）にあるため、型ではなく名前で探します。
+        /// </summary>
+        private static bool IsInsideSafeArea(Transform target)
+        {
+            for (Transform node = target; node != null; node = node.parent)
+            {
+                Component[] components = node.GetComponents<Component>();
+
+                for (int i = 0; i < components.Length; i++)
+                {
+                    if (components[i] != null &&
+                        components[i].GetType().Name == "SafeAreaController")
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>Safe Area 直下の下部操作領域。</summary>
+        private RectTransform ActionDock()
+        {
+            UnitSetScreen screen = FindOne<UnitSetScreen>();
+
+            Button save = (Button)GetField(screen, "saveButton");
+            RectTransform dock = save.transform.parent as RectTransform;
+
+            Assert.That(dock, Is.Not.Null);
+            Assert.That(
+                dock.name,
+                Is.EqualTo("ActionDock"),
+                "3つの操作は下部のAction Dockへまとめます。");
+
+            return dock;
+        }
+
+        private RectTransform Header()
+        {
+            foreach (GameObject root in scene.GetRootGameObjects())
+            {
+                Transform header = FindDeep(root.transform, "Header");
+
+                if (header != null)
+                {
+                    return (RectTransform)header;
+                }
+            }
+
+            Assert.Fail("Header が見つかりません。");
+            return null;
+        }
+
+        private static Transform FindDeep(Transform node, string name)
+        {
+            if (node.name == name)
+            {
+                return node;
+            }
+
+            for (int i = 0; i < node.childCount; i++)
+            {
+                Transform found = FindDeep(node.GetChild(i), name);
+
+                if (found != null)
+                {
+                    return found;
+                }
+            }
+
+            return null;
+        }
+
+        private CanvasScaler Scaler()
+        {
+            return FindOne<CanvasScaler>();
+        }
+
+        [Test]
+        public void TopHeader_KeepsTheTitleAndDropsEveryControl()
+        {
+            RectTransform header = Header();
+
+            Assert.That(
+                header.GetComponentsInChildren<Selectable>(true),
+                Is.Empty,
+                "上部は情報表示だけにします。操作ボタンは置きません。");
+
+            Assert.That(
+                header.GetComponentsInChildren<SceneLoadButton>(true),
+                Is.Empty,
+                "上部のHOMEは撤去しました。");
+
+            TMP_Text title = header.GetComponentInChildren<TMP_Text>(true);
+
+            Assert.That(title, Is.Not.Null);
+            Assert.That(title.text, Is.EqualTo("UNIT SET"));
+
+            RectTransform titleRect = title.rectTransform;
+
+            Assert.That(
+                titleRect.anchoredPosition.x,
+                Is.EqualTo(0f),
+                "タイトルはヘッダー中央へ置きます。");
+        }
+
+        [Test]
+        public void DetailPanel_StaysInTheUpperInformationArea()
+        {
+            BeastDetailPanel detail = FindOne<BeastDetailPanel>();
+
+            RectTransform rect = detail.GetComponent<RectTransform>();
+
+            Assert.That(
+                rect.anchorMax.y,
+                Is.EqualTo(1f),
+                "ユニット詳細は上部の情報表示として残します。");
+
+            Assert.That(
+                rect.GetComponentsInChildren<Selectable>(true),
+                Is.Empty,
+                "詳細表示に操作ボタンは置きません。");
+        }
+
+        [Test]
+        public void HomeAndSaveLiveUnderTheBottomActionDock()
+        {
+            UnitSetScreen screen = FindOne<UnitSetScreen>();
+            RectTransform dock = ActionDock();
+
+            Button save = (Button)GetField(screen, "saveButton");
+
+            Assert.That(save.transform.parent, Is.SameAs(dock));
+
+            SceneLoadButton[] navigation =
+                dock.GetComponentsInChildren<SceneLoadButton>(true);
+
+            Assert.That(navigation.Length, Is.EqualTo(1));
+            Assert.That((string)GetField(navigation[0], "sceneName"), Is.EqualTo("Home"));
+            Assert.That(navigation[0].transform.parent, Is.SameAs(dock));
+
+            Button home = (Button)GetField(navigation[0], "button");
+
+            Assert.That(home, Is.Not.Null);
+            Assert.That(home.gameObject, Is.SameAs(navigation[0].gameObject));
+
+            // 親指で押す操作はHOMEとSAVE SETの2つだけです。
+            // SET は操作ではなくなったため、Dockにはもう居ません。
+            Assert.That(dock.GetComponentsInChildren<Button>(true).Length, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void TheDockKeepsTheExistingWiringForHomeAndSave()
+        {
+            UnitSetScreen screen = FindOne<UnitSetScreen>();
+
+            Button save = (Button)GetField(screen, "saveButton");
+
+            // 呼び出しはコードから登録します。シーンへ固定の呼び出しは置きません。
+            Assert.That(save.onClick.GetPersistentEventCount(), Is.EqualTo(0));
+
+            // ラベルは、下部へ移した実物を指していること。
+            TMP_Text saveLabel = (TMP_Text)GetField(screen, "saveButtonLabel");
+            TMP_Text setLabel = (TMP_Text)GetField(screen, "setNameLabel");
+            TMP_Text homeLabel = (TMP_Text)GetField(screen, "homeButtonLabel");
+
+            RectTransform dock = ActionDock();
+            RectTransform chip = (RectTransform)GetField(screen, "setChip");
+
+            Assert.That(saveLabel.GetComponentInParent<Button>(), Is.SameAs(save));
+            Assert.That(saveLabel.transform.IsChildOf(dock), Is.True);
+            Assert.That(
+                homeLabel.transform.IsChildOf(dock),
+                Is.True,
+                "HOMEのラベルも下部へ移します。");
+
+            // SET の表示はDockを離れ、MY SQUAD見出しの右のチップへ移りました。
+            Assert.That(setLabel.transform.IsChildOf(chip), Is.True);
+            Assert.That(setLabel.transform.IsChildOf(dock), Is.False);
+        }
+
+        [Test]
+        public void SaveSetIsThePrimaryActionAndTheOthersAreSecondary()
+        {
+            UnitSetScreen screen = FindOne<UnitSetScreen>();
+            RectTransform dock = ActionDock();
+
+            Button save = (Button)GetField(screen, "saveButton");
+            Button home = dock.GetComponentInChildren<SceneLoadButton>(true)
+                .GetComponent<Button>();
+
+            RectTransform saveRect = save.GetComponent<RectTransform>();
+            RectTransform homeRect = home.GetComponent<RectTransform>();
+
+            float dockWidth = MobileLayoutMetrics.SafeAreaWidthUnits(Scaler())
+                              + dock.sizeDelta.x;
+
+            float saveWidth = (saveRect.anchorMax.x - saveRect.anchorMin.x) * dockWidth
+                              + saveRect.sizeDelta.x;
+
+            float homeWidth = (homeRect.anchorMax.x - homeRect.anchorMin.x) * dockWidth
+                              + homeRect.sizeDelta.x;
+
+            Assert.That(
+                saveWidth,
+                Is.GreaterThan(homeWidth * 1.5f),
+                "SAVE SET は最も強い操作として、HOMEより広く出します。");
+
+            Color primary = save.GetComponent<Image>().color;
+            Color secondary = home.GetComponent<Image>().color;
+
+            Assert.That(
+                primary,
+                Is.Not.EqualTo(secondary),
+                "Primary と Secondary は同じ色で出しません。");
+
+            Assert.That(
+                primary.b + primary.g,
+                Is.GreaterThan(secondary.b + secondary.g),
+                "SAVE SET のほうが目立つ色である必要があります。");
+        }
+
+        [Test]
+        public void EveryDockButtonMeetsTheMinimumTapTarget()
+        {
+            RectTransform dock = ActionDock();
+            CanvasScaler scaler = Scaler();
+
+            float points = MobileLayoutMetrics.PointsPerUnit(scaler);
+            Button[] buttons = dock.GetComponentsInChildren<Button>(true);
+
+            Assert.That(buttons, Is.Not.Empty);
+
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                RectTransform rect = buttons[i].GetComponent<RectTransform>();
+
+                Assert.That(
+                    rect.sizeDelta.y * points,
+                    Is.GreaterThanOrEqualTo(MobileLayoutMetrics.MinimumTapPoints),
+                    rect.name + " の高さが 44pt 未満です。");
+
+                Assert.That(
+                    rect.sizeDelta.y * points,
+                    Is.InRange(48f, 56f),
+                    rect.name + " の高さは推奨の 48〜56pt へ収めます。");
+
+                if (rect.anchorMin.x == rect.anchorMax.x)
+                {
+                    Assert.That(
+                        rect.sizeDelta.x * points,
+                        Is.GreaterThanOrEqualTo(MobileLayoutMetrics.MinimumTapPoints),
+                        rect.name + " の幅が 44pt 未満です。");
+                }
+            }
+        }
+
+        [Test]
+        public void TheDockSitsInsideTheBottomSafeAreaAndHidesNothing()
+        {
+            RectTransform dock = ActionDock();
+            CanvasScaler scaler = Scaler();
+
+            Assert.That(
+                IsInsideSafeArea(dock),
+                Is.True,
+                "Action Dock は Safe Area の内側に置きます。");
+
+            float safeHeight = MobileLayoutMetrics.SafeAreaHeightUnits(scaler);
+
+            Vector2 dockSpan = MobileLayoutMetrics.VerticalSpan(dock, safeHeight);
+
+            Assert.That(
+                dockSpan.x,
+                Is.GreaterThan(0f),
+                "ホームインジケーターの上に余白を残します。");
+
+            RectTransform squadRow =
+                FindOne<SquadBarView>().GetComponent<RectTransform>();
+            RectTransform roster =
+                FindOne<RosterGridView>().GetComponent<RectTransform>();
+
+            Vector2 squadSpan = MobileLayoutMetrics.VerticalSpan(squadRow, safeHeight);
+            Vector2 rosterSpan = MobileLayoutMetrics.VerticalSpan(roster, safeHeight);
+
+            Assert.That(
+                squadSpan.x,
+                Is.GreaterThanOrEqualTo(dockSpan.y),
+                "Action Dock が MY SQUAD の7枠を隠しています。");
+
+            Assert.That(
+                rosterSpan.x,
+                Is.GreaterThanOrEqualTo(squadSpan.y),
+                "Action Dock 周りが Roster のスクロール領域へ重なっています。");
+
+            Assert.That(
+                rosterSpan.y - rosterSpan.x,
+                Is.GreaterThan(0f),
+                "Roster のスクロール領域が潰れています。");
+        }
+
+        [Test]
+        public void TheSevenSquadSlotsStayVisibleAboveTheDock()
+        {
+            CanvasScaler scaler = Scaler();
+            float safeHeight = MobileLayoutMetrics.SafeAreaHeightUnits(scaler);
+
+            RectTransform squadRow =
+                FindOne<SquadBarView>().GetComponent<RectTransform>();
+
+            Vector2 span = MobileLayoutMetrics.VerticalSpan(squadRow, safeHeight);
+
+            Assert.That(span.x, Is.GreaterThan(0f));
+            Assert.That(
+                span.y,
+                Is.LessThan(safeHeight),
+                "7枠がSafe Areaからはみ出しています。");
+
+            // 7枠が横に並びきること（間隔込み）。
+            HorizontalLayoutGroup layout =
+                squadRow.GetComponent<HorizontalLayoutGroup>();
+
+            Assert.That(layout, Is.Not.Null);
+
+            float rowWidth = MobileLayoutMetrics.SafeAreaWidthUnits(scaler)
+                             + squadRow.sizeDelta.x;
+
+            float spacing = layout.spacing * (SquadFormation.SlotCount - 1);
+            float padding = layout.padding.left + layout.padding.right;
+
+            Assert.That(
+                (rowWidth - spacing - padding) / SquadFormation.SlotCount,
+                Is.GreaterThan(0f),
+                "7枠を同時に置ける幅がありません。");
+        }
+
+        [Test]
+        public void TheSavedMessageDoesNotCoverTheDockOrTheSquad()
+        {
+            CanvasScaler scaler = Scaler();
+            float safeHeight = MobileLayoutMetrics.SafeAreaHeightUnits(scaler);
+
+            RectTransform toast = FindOne<ToastLabel>().GetComponent<RectTransform>();
+            RectTransform dock = ActionDock();
+            RectTransform squadRow =
+                FindOne<SquadBarView>().GetComponent<RectTransform>();
+
+            Vector2 toastSpan = MobileLayoutMetrics.VerticalSpan(toast, safeHeight);
+            Vector2 dockSpan = MobileLayoutMetrics.VerticalSpan(dock, safeHeight);
+            Vector2 squadSpan = MobileLayoutMetrics.VerticalSpan(squadRow, safeHeight);
+
+            Assert.That(
+                toastSpan.x,
+                Is.GreaterThanOrEqualTo(dockSpan.y),
+                "SAVE SET の完了メッセージが Action Dock を隠しています。");
+
+            Assert.That(
+                toastSpan.x,
+                Is.GreaterThanOrEqualTo(squadSpan.y),
+                "SAVE SET の完了メッセージが7枠を隠しています。");
+        }
+
+        [Test]
+        public void TheDockIsFixedToTheBottomAndNotScrolled()
+        {
+            RectTransform dock = ActionDock();
+
+            Assert.That(dock.anchorMin.y, Is.EqualTo(0f));
+            Assert.That(dock.anchorMax.y, Is.EqualTo(0f));
+            Assert.That(dock.pivot.y, Is.EqualTo(0f));
+
+            Assert.That(
+                dock.GetComponentInParent<ScrollRect>(),
+                Is.Null,
+                "Action Dock はスクロール領域の中へ入れません。");
+
+            RosterGridView roster = FindOne<RosterGridView>();
+
+            Assert.That(
+                dock.IsChildOf(roster.transform),
+                Is.False,
+                "Action Dock は Roster の中に入れません。");
         }
 
         [Test]

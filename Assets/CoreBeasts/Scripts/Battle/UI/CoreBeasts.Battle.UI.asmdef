@@ -1,0 +1,19 @@
+{
+    "name": "CoreBeasts.Battle.UI",
+    "rootNamespace": "CoreBeasts.Battle.UI",
+    "references": [
+        "CoreBeasts.Battle",
+        "CoreBeasts.Units",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

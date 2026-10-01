@@ -1,8 +1,6 @@
-using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 namespace CoreBeasts.Units.Tests
 {
@@ -213,29 +211,95 @@ namespace CoreBeasts.Units.Tests
             Assert.That(ReadFloat(EmissionStrengthId), Is.GreaterThanOrEqualTo(0f));
         }
 
+        /// <summary>
+        /// 参照不足の検知は製品コードの機能なので、エラーは必ず1回出ます。
+        /// ただしこれはテストが意図的に起こしたものなので、Unity Consoleへは残しません。
+        ///
+        /// <c>LogAssert.Expect</c> は「想定内」と印を付けるだけで、メッセージ自体は
+        /// Consoleへ流れます。そのため代わりに<see cref="CapturingLogHandler"/>で
+        /// <see cref="Debug.unityLogger"/>のログ受けごと差し替え、元へは転送しません。
+        ///
+        /// エラーが出る入口は<c>OnEnable → Apply</c>です。
+        /// <c>AddComponent</c> はGameObjectが無効なあいだは<c>OnEnable</c>を呼ばないため、
+        /// 生成・AddComponent・SetActive のすべてより前に差し替えておく必要があります。
+        /// </summary>
         [Test]
+        // ログ受けは全体で1つしかないため、このテストは他と並行させません。
+        // （同梱のNUnitには NonParallelizable が無いため、同義の指定を使います）
+        [Parallelizable(ParallelScope.None)]
         public void Apply_WithMissingReferences_LogsOnceAndDoesNotThrow()
         {
-            GameObject orphan = new GameObject("OrphanBeast");
-            orphan.SetActive(false);
+            ILogHandler originalHandler = Debug.unityLogger.logHandler;
+            CapturingLogHandler capture = new CapturingLogHandler();
 
-            CoreBeastView orphanView = orphan.AddComponent<CoreBeastView>();
+            // GameObjectを作る前に差し替えます。ここより後に差し替えると、
+            // OnEnableのエラーが本物のConsoleへ届いてしまいます。
+            Debug.unityLogger.logHandler = capture;
 
-            LogAssert.Expect(
-                LogType.Error,
-                new Regex(@"\[CoreBeastView\].*OrphanBeast")
+            GameObject orphan = null;
+
+            try
+            {
+                orphan = new GameObject("OrphanBeast");
+
+                // 参照を差し込まないまま組み立てるため、無効な状態で作ります。
+                orphan.SetActive(false);
+
+                CoreBeastView orphanView = orphan.AddComponent<CoreBeastView>();
+
+                Assert.That(
+                    capture.Entries.Count,
+                    Is.EqualTo(0),
+                    "無効なGameObjectへのAddComponentではOnEnableが走りません。"
+                );
+
+                // OnEnableでApplyが走り、ここで1回だけエラーが出ます。
+                orphan.SetActive(true);
+
+                Assert.That(
+                    capture.CountOf(LogType.Error),
+                    Is.EqualTo(1),
+                    "参照不足のエラーは、ちょうど1件だけ出る必要があります。"
+                );
+
+                string message = capture.FirstMessageOf(LogType.Error);
+
+                Assert.That(message, Does.Contain("OrphanBeast"));
+                Assert.That(message, Does.Contain("SpriteRenderer"));
+                Assert.That(message, Does.Contain("AttributePalette"));
+
+                // 2回目以降は同じエラーを繰り返しません。
+                Assert.DoesNotThrow(() => orphanView.Apply());
+                Assert.DoesNotThrow(() => orphanView.Apply());
+
+                Assert.That(
+                    capture.CountOf(LogType.Error),
+                    Is.EqualTo(1),
+                    "Applyを繰り返しても、エラーは増えません。"
+                );
+
+                Assert.That(
+                    capture.Entries.Count,
+                    Is.EqualTo(1),
+                    "捕まえたログはこの1件だけで、ほかの重要度は出ません。"
+                );
+            }
+            finally
+            {
+                if (orphan != null)
+                {
+                    Object.DestroyImmediate(orphan);
+                }
+
+                // 捕まえるのはこのテストの間だけです。必ず元のログ受けへ戻します。
+                Debug.unityLogger.logHandler = originalHandler;
+            }
+
+            Assert.That(
+                Debug.unityLogger.logHandler,
+                Is.SameAs(originalHandler),
+                "テストの後は、元のログ受けへ戻っている必要があります。"
             );
-
-            // OnEnableでApplyが走り、ここで1回だけエラーが出ます。
-            orphan.SetActive(true);
-
-            // 2回目以降は同じエラーを繰り返しません。
-            Assert.DoesNotThrow(() => orphanView.Apply());
-            Assert.DoesNotThrow(() => orphanView.Apply());
-
-            LogAssert.NoUnexpectedReceived();
-
-            Object.DestroyImmediate(orphan);
         }
 
         private Color ReadColor(int propertyId)

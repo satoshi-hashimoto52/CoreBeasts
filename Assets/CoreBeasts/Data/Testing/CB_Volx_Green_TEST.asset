@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   beastId: volx_g_test
   displayName: VOLX
+  attributePowers:
+  - attribute: 1
+    power: 64
   primaryAttribute: 1
   hasSecondaryAttribute: 0
   secondaryAttribute: 2

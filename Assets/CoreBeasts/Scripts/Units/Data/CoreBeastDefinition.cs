@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace CoreBeasts.Units
@@ -22,7 +24,13 @@ namespace CoreBeasts.Units
         [Tooltip("画面表示名。ローカライズ対象。")]
         private string displayName = "BEAST";
 
-        [Header("Attributes")]
+        [Header("Attributes and power")]
+        [Tooltip("色とPOWERの組。1〜2件。並び順が主属性・副属性です。")]
+        [SerializeField]
+        private List<AttributePower> attributePowers = new List<AttributePower>();
+
+        [Header("Legacy (migration only)")]
+        [Tooltip("旧データ。attributePowers が空のときだけ読み替えに使います。")]
         [SerializeField]
         private UnitAttribute primaryAttribute = UnitAttribute.Red;
 
@@ -32,14 +40,15 @@ namespace CoreBeasts.Units
         [SerializeField]
         private UnitAttribute secondaryAttribute = UnitAttribute.Blue;
 
+        [Tooltip("旧データの共通POWER。戦闘judgeは参照しません。")]
+        [SerializeField]
+        [Min(0)]
+        private int power = 50;
+
         [Header("Stats")]
         [SerializeField]
         [Min(0)]
         private int cost = 20;
-
-        [SerializeField]
-        [Min(0)]
-        private int power = 50;
 
         [SerializeField]
         [Min(0)]
@@ -63,17 +72,70 @@ namespace CoreBeasts.Units
 
         public string DisplayName => displayName;
 
-        public UnitAttribute PrimaryAttribute => primaryAttribute;
+        /// <summary>
+        /// 色別POWER。登録順（主属性が先）です。これが正です。
+        ///
+        /// 旧データ（<c>attributePowers</c>が空）のアセットでも動くよう、
+        /// そのときだけ旧フィールドから読み替えた1〜2件を返します。
+        /// 読み替えは表示と変換のためのもので、
+        /// 戦闘judgeは常にこの一覧だけを見ます。
+        /// </summary>
+        public IReadOnlyList<AttributePower> AttributePowers =>
+            attributePowers != null && attributePowers.Count > 0
+                ? attributePowers
+                : BuildFromLegacy();
 
-        public bool HasSecondaryAttribute => hasSecondaryAttribute;
+        /// <summary>主属性（登録順の1つ目）。</summary>
+        public UnitAttribute PrimaryAttribute => AttributePowers[0].Attribute;
 
-        public UnitAttribute SecondaryAttribute => secondaryAttribute;
+        /// <summary>副属性を持つか。</summary>
+        public bool HasSecondaryAttribute => AttributePowers.Count > 1;
+
+        /// <summary>副属性。単色なら主属性と同じ値を返します。</summary>
+        public UnitAttribute SecondaryAttribute =>
+            AttributePowers.Count > 1 ? AttributePowers[1].Attribute : PrimaryAttribute;
+
+        /// <summary>指定色のPOWER。持っていなければ0。</summary>
+        public int PowerOf(UnitAttribute attribute)
+        {
+            IReadOnlyList<AttributePower> powers = AttributePowers;
+
+            for (int i = 0; i < powers.Count; i++)
+            {
+                if (powers[i].Attribute == attribute)
+                {
+                    return powers[i].Power;
+                }
+            }
+
+            return 0;
+        }
+
+        /// <summary>構成が仕様（1〜2色・重複なし・POWER正）を満たすか。</summary>
+        public AttributeLoadoutError ValidateAttributePowers()
+        {
+            return AttributeLoadout.Validate(AttributePowers);
+        }
 
         public int Cost => cost;
 
-        public int Power => power;
-
         public int Core => core;
+
+        /// <summary>旧データからの読み替え。移行前のアセットを開けるようにするためだけのものです。</summary>
+        private List<AttributePower> BuildFromLegacy()
+        {
+            List<AttributePower> fallback = new List<AttributePower>(2)
+            {
+                new AttributePower(primaryAttribute, power < 1 ? 1 : power),
+            };
+
+            if (hasSecondaryAttribute)
+            {
+                fallback.Add(new AttributePower(secondaryAttribute, power < 1 ? 1 : power));
+            }
+
+            return fallback;
+        }
 
         public string SkillName => skillName;
 

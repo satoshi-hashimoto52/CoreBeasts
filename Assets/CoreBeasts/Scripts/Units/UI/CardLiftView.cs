@@ -4,11 +4,19 @@ using UnityEngine.UI;
 namespace CoreBeasts.Units
 {
     /// <summary>
-    /// 長押し成立（ドラッグ可能）を、浮き上がり・拡大・影・発光で示します。
+    /// 長押し成立（ドラッグ可能）を、浮き上がり・拡大・影で示します。
     ///
     /// GridLayoutGroupが管理するカードのルートは動かさず、
-    /// 表示専用の子(VisualRoot)のlocalPositionとlocalScaleだけを補間します。
+    /// 機械獣だけを載せた子(HoverLiftRoot)のlocalPositionとlocalScaleだけを補間します。
     /// 補間は基準値からの割合で計算するため、連続操作でも累積しません。
+    ///
+    /// 描画順はここでは一切触りません。
+    /// 機械獣が色面より前に出ることは、BeastCard.prefabの恒久的な兄弟順
+    /// （Background → AttributeSurface → Thumb{影・発光・機械獣} → Frame → ラベル → バッジ）
+    /// だけで満たします。ホバー時にカードごと前面へ出す
+    /// （ネストしたCanvasのoverrideSortingを立てる）ことはしません。
+    /// カード全体が前へ出ると、隣のカードやスクロール範囲の外まで被さり、
+    /// RectMask2Dの切り抜きも効かなくなるためです。
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class CardLiftView : MonoBehaviour
@@ -30,11 +38,6 @@ namespace CoreBeasts.Units
         [SerializeField] private GameObject dragGlow;
         [SerializeField] private Image dragGlowImage;
 
-        [Tooltip("前面表示に使うCanvas。常に有効のままにし、sortingだけを切り替えます。")]
-        [SerializeField] private Canvas frontCanvas;
-
-        [SerializeField] private int frontSortingOrder = 10;
-
         [Header("Motion")]
         [Tooltip("浮き上がる距離(Canvas units)。iPhone 16 Proで約9.9pt。")]
         [SerializeField] [Range(8f, 40f)] private float liftDistance = 24f;
@@ -53,7 +56,6 @@ namespace CoreBeasts.Units
 
         private Vector3 restPosition;
         private Vector3 restScale;
-        private int restSortingOrder;
         private bool captured;
 
         private float progress;
@@ -142,6 +144,22 @@ namespace CoreBeasts.Units
             ApplyProgress();
         }
 
+        /// <summary>
+        /// 補間を待たずに、その状態の見た目を即座に適用します。
+        ///
+        /// 持ち上げは<see cref="Update"/>で時間を掛けて補間します。
+        /// 補間を回せない場面（表示直後に確定させたいとき、検査）では、
+        /// こちらで目標値へ一気に合わせます。
+        /// </summary>
+        public void SetStateImmediate(LiftState state)
+        {
+            SetState(state);
+
+            progress = targetProgress;
+
+            ApplyProgress();
+        }
+
         /// <summary>補間を待たずに通常表示へ戻します。表示が残らないようにします。</summary>
         public void ResetImmediate()
         {
@@ -166,11 +184,6 @@ namespace CoreBeasts.Units
             restPosition = visualRoot.localPosition;
             restScale = visualRoot.localScale;
 
-            if (frontCanvas != null)
-            {
-                restSortingOrder = frontCanvas.sortingOrder;
-            }
-
             captured = true;
         }
 
@@ -191,8 +204,18 @@ namespace CoreBeasts.Units
                 restScale * Mathf.LerpUnclamped(1f, liftScale, progress);
         }
 
+        /// <summary>
+        /// 浮いているあいだの装飾を出し入れします。
+        ///
+        /// ホバー（<see cref="LiftState.DragReady"/>）では影だけを出します。
+        /// 属性色のグロウは矩形の板なので、ホバーで出すと
+        /// 「キャラクターと一緒に属性色の背景が浮き上がった」ように見えてしまいます。
+        /// 色の手がかりが要るドラッグ中だけに限ります。
+        /// </summary>
         private void SetDecorationsActive(bool active)
         {
+            bool dragging = State == LiftState.Dragging;
+
             if (dragShadow != null)
             {
                 dragShadow.SetActive(active);
@@ -200,35 +223,13 @@ namespace CoreBeasts.Units
 
             if (dragGlow != null)
             {
-                dragGlow.SetActive(active);
+                dragGlow.SetActive(active && dragging);
             }
-
-            SetFrontMost(active);
         }
 
-        /// <summary>
-        /// 浮いている間だけ前面へ出します。
-        ///
-        /// Canvasは常に有効のままにします。
-        /// ネストしたCanvasを無効化すると、その配下のGraphicが一切描画されなくなり、
-        /// カードそのものが消えてしまうためです。
-        /// 前面化の解除は overrideSorting を戻すことで行います。
-        /// </summary>
-        private void SetFrontMost(bool front)
-        {
-            if (frontCanvas == null)
-            {
-                return;
-            }
-
-            Capture();
-
-            // 無効化しない。描画は常に生かしたままにします。
-            frontCanvas.enabled = true;
-
-            frontCanvas.overrideSorting = front;
-            frontCanvas.sortingOrder = front ? frontSortingOrder : restSortingOrder;
-        }
+        /// <summary>ホバー中に属性色のグロウを出しているか（確認・テスト用）。</summary>
+        public bool IsAttributeGlowVisible =>
+            dragGlow != null && dragGlow.activeSelf;
 
         private void SetAlpha(float alpha)
         {

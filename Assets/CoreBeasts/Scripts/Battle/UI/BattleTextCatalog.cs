@@ -1,0 +1,159 @@
+using UnityEngine;
+
+namespace CoreBeasts.Battle.UI
+{
+    /// <summary>
+    /// バトル画面の表示文字列をまとめたアセット。
+    ///
+    /// 既存の<see cref="CoreBeasts.Units.UiTextCatalog"/>は編成画面のものです。
+    /// そちらを書き換えず、バトル固有の文言だけをここへ分けています。
+    /// 言語を増やすときはこのアセットを複製して差し替えます。
+    ///
+    /// 文言は短い英語を基本とし、説明文へ依存しません。
+    /// 状況は色・数値・状態変化で読み取れるようにします。
+    /// </summary>
+    [CreateAssetMenu(
+        fileName = "BattleTextCatalog_EN",
+        menuName = "CoreBeasts/Battle Text Catalog"
+    )]
+    public sealed class BattleTextCatalog : ScriptableObject, IBattleTextSource
+    {
+        [Header("Screen")]
+        [SerializeField] private string battle = "BATTLE";
+        [SerializeField] private string deploy = "DEPLOY";
+        [SerializeField] private string versus = "VS";
+        [SerializeField] private string player = "PLAYER";
+        [SerializeField] private string cpu = "CPU";
+
+        [Header("Hidden opponent")]
+        [Tooltip("CPUが選出済みであることだけを示します。個体は特定できません。")]
+        [SerializeField] private string ready = "READY";
+        [SerializeField] private string hidden = "?";
+        [SerializeField] private string used = "USED";
+        [SerializeField] private string remainingFormat = "LEFT {0} / {1}";
+
+        [Header("Score")]
+        [SerializeField] private string roundFormat = "ROUND {0} / {1}";
+        [SerializeField] private string scoreFormat = "PLAYER {0}  -  {1} CPU";
+
+        [Header("Round result")]
+        [SerializeField] private string attributeWin = "ATTRIBUTE WIN";
+        [SerializeField] private string powerWin = "POWER WIN";
+        [SerializeField] private string roundDraw = "DRAW";
+        [SerializeField] private string playerWin = "PLAYER WIN";
+        [SerializeField] private string cpuWin = "CPU WIN";
+        [SerializeField] private string matchDraw = "DRAW";
+        [SerializeField] private string unitSummaryFormat = "{0}  {1}";
+
+        [Header("Match end")]
+        [SerializeField] private string rematch = "REMATCH";
+
+        [Header("Squad required")]
+        [SerializeField] private string squadRequired = "SQUAD REQUIRED";
+        [SerializeField] private string squadRequiredHint = "SET 7 CORE BEASTS";
+
+        [Header("Effects")]
+        [SerializeField] private string fxOn = "FX ON";
+        [SerializeField] private string fxOff = "FX OFF";
+
+        [Header("Settings panel")]
+        [Tooltip("右上の歯車から開く設定パネルの文言です。")]
+        [SerializeField] private string settings = "SETTINGS";
+        [SerializeField] private string fx = "FX";
+        [Tooltip("ON / OFF の値表示。YAMLの予約語を避けるためフィールド名を分けています。")]
+        [SerializeField] private string valueOn = "ON";
+        [SerializeField] private string valueOff = "OFF";
+        [SerializeField] private string close = "CLOSE";
+        [SerializeField] private string home = "HOME";
+
+        public string Battle => battle;
+
+        public string Deploy => deploy;
+
+        public string Ready => ready;
+
+        public string Hidden => hidden;
+
+        public string Versus => versus;
+
+        public string FxOn => fxOn;
+
+        public string FxOff => fxOff;
+
+        public string Settings => settings;
+
+        public string Fx => fx;
+
+        public string On => valueOn;
+
+        public string Off => valueOff;
+
+        public string Close => close;
+
+        public string Home => home;
+
+        public string Player => player;
+
+        public string Cpu => cpu;
+
+        public string Rematch => rematch;
+
+        public string SquadRequired => squadRequired;
+
+        public string SquadRequiredHint => squadRequiredHint;
+
+        public string Used => used;
+
+        public string AttributeWin => attributeWin;
+
+        public string PowerWin => powerWin;
+
+        public string RoundDraw => roundDraw;
+
+        public string PlayerWin => playerWin;
+
+        public string CpuWin => cpuWin;
+
+        public string MatchDraw => matchDraw;
+
+        public string FormatRound(int round, int maxRounds)
+        {
+            return SafeFormat(roundFormat, round, maxRounds);
+        }
+
+        public string FormatScore(int playerWins, int cpuWins)
+        {
+            return SafeFormat(scoreFormat, playerWins, cpuWins);
+        }
+
+        public string FormatRemaining(int remaining, int total)
+        {
+            return SafeFormat(remainingFormat, remaining, total);
+        }
+
+        public string FormatUnitSummary(string attributeSymbol, string powerLine)
+        {
+            return SafeFormat(unitSummaryFormat, attributeSymbol, powerLine);
+        }
+
+        /// <summary>書式が壊れていても例外を出さずに素の値を返します。</summary>
+        private static string SafeFormat(string format, params object[] args)
+        {
+            if (string.IsNullOrEmpty(format))
+            {
+                return args != null && args.Length > 0 && args[0] != null
+                    ? args[0].ToString()
+                    : string.Empty;
+            }
+
+            try
+            {
+                return string.Format(format, args);
+            }
+            catch (System.FormatException)
+            {
+                return format;
+            }
+        }
+    }
+}

@@ -53,5 +53,14 @@ namespace CoreBeasts.Battle
 
         /// <summary>所持データからバトル用の値へ変換できませんでした。</summary>
         UnconvertibleUnit = 15,
+
+        /// <summary>
+        /// 色とPOWERの構成が仕様から外れています。
+        /// 0色、3色以上、同じ色の重複がこれにあたります。
+        /// </summary>
+        InvalidAttributeLoadout = 16,
+
+        /// <summary>COREが負の値です。</summary>
+        NegativeCore = 17,
     }
 }
