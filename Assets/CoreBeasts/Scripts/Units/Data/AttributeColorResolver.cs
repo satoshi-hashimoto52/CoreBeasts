@@ -58,6 +58,40 @@ namespace CoreBeasts.Units
             );
         }
 
+        /// <summary>
+        /// 所持カードの外周フレームと薄い背景に使う色を解決します。
+        ///
+        /// 立ち絵のマスク着色（<see cref="Resolve(AttributePalette, CoreBeastDefinition)"/>）が
+        /// 一次色と二次色を混ぜるのに対し、カードは「属性そのものの色」を出します。
+        /// そのため両側とも各属性の<see cref="AttributePalette.AttributeColors.PrimaryColor"/>を使い、
+        /// 単属性では左上・右下が同じ色になります。
+        ///
+        /// 色の実体は<see cref="AttributePalette"/>だけが持ちます。ここでは選ぶだけです。
+        /// </summary>
+        public static void ResolveCardColors(
+            AttributePalette palette,
+            CoreBeastDefinition definition,
+            out Color primary,
+            out Color secondary,
+            out bool isDual)
+        {
+            if (palette == null || definition == null)
+            {
+                primary = Color.white;
+                secondary = Color.white;
+                isDual = false;
+
+                return;
+            }
+
+            primary = palette.GetColors(definition.PrimaryAttribute).PrimaryColor;
+            isDual = definition.HasSecondaryAttribute;
+
+            secondary = isDual
+                ? palette.GetColors(definition.SecondaryAttribute).PrimaryColor
+                : primary;
+        }
+
         /// <summary>個体定義から配色を解決します。</summary>
         public static Colors Resolve(
             AttributePalette palette,

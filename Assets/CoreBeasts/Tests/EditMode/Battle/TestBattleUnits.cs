@@ -20,13 +20,17 @@ namespace CoreBeasts.Battle.Tests
             return new BattleUnit(instanceId, attribute, power);
         }
 
+        /// <summary>2色。主属性・副属性それぞれのPOWERを指定します。</summary>
         internal static BattleUnit Dual(
             string instanceId,
             UnitAttribute primary,
             UnitAttribute secondary,
-            int power = DefaultPower)
+            int primaryPower = DefaultPower,
+            int secondaryPower = DefaultPower,
+            int core = 0)
         {
-            return new BattleUnit(instanceId, primary, secondary, power);
+            return new BattleUnit(
+                instanceId, primary, primaryPower, secondary, secondaryPower, core);
         }
 
         /// <summary>

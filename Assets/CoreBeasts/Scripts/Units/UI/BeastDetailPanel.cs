@@ -27,15 +27,27 @@ namespace CoreBeasts.Units
         [SerializeField] private TMP_Text skillNameLabel;
         [SerializeField] private TMP_Text skillDescriptionLabel;
 
-        [Header("Gauges and chips")]
+        [Header("Chips and icons")]
         [SerializeField] private Image attributeChip;
-        [Tooltip("Image Type を Filled / Horizontal にしてください")]
-        [SerializeField] private Image powerGauge;
-        [SerializeField] private Image coreGauge;
 
-        [Header("Config")]
-        [Tooltip("ゲージを満タンとみなす値。数値表示と併記するため目安で構いません。")]
-        [SerializeField] [Min(1)] private int gaugeMaxValue = 120;
+        [Tooltip("COREの小さなアイコン。文字ではなくGraphicで出します。")]
+        [SerializeField] private Graphic coreIcon;
+
+        [Header("Stat row")]
+        [Tooltip("ステータス行の左端（詳細カードのローカル座標）。")]
+        [SerializeField] private float statRowLeft = 348f;
+
+        [Tooltip("属性POWERの群と CORE の群のあいだ。")]
+        [SerializeField] [Range(20f, 48f)] private float powerToCoreGap = 28f;
+
+        [Tooltip("COREアイコンとCORE数値のあいだ。")]
+        [SerializeField] [Range(6f, 20f)] private float iconToValueGap = 10f;
+
+        [Tooltip("COREアイコンの大きさ。")]
+        [SerializeField] [Range(18f, 48f)] private float coreIconSize = 42f;
+
+        [Tooltip("カードの内側に残す左右の余白。ここより外へは出しません。")]
+        [SerializeField] [Range(4f, 48f)] private float statRowPadding = 24f;
 
         [SerializeField] private AttributePalette palette;
         [SerializeField] private UiTextCatalog text;
@@ -74,16 +86,34 @@ namespace CoreBeasts.Units
             SetText(nameLabel, definition.DisplayName);
             SetText(levelLabel, text.FormatLevel(beast.Level));
             SetText(costLabel, text.FormatCost(definition.Cost));
-            SetText(powerLabel, text.FormatPower(definition.Power));
-            SetText(coreLabel, text.FormatCore(definition.Core));
+            // POWER / CORE の常設ラベルは使いません。数値だけを色付きで出します。
+            SetText(
+                powerLabel,
+                StatLinePresenter.BuildPowerLine(definition.AttributePowers, palette));
+
+            SetText(coreLabel, StatLinePresenter.BuildCoreValue(definition.Core));
+            ShowCoreIcon(true);
+
+            // 固定座標ではなく、TMPの実測幅で詰めます。
+            // バトル画面と同じ共通処理を使い、画面ごとに複製しません。
+            // 位置はカードの矩形を基準にし、はみ出しはクランプで防ぎます。
+            RectTransform card = transform as RectTransform;
+
+            StatLinePresenter.LayoutRow(
+                powerLabel,
+                coreIcon,
+                coreLabel,
+                card,
+                statRowLeft,
+                statRowPadding,
+                powerToCoreGap,
+                iconToValueGap,
+                coreIconSize);
             SetText(skillNameLabel, definition.SkillName);
             SetText(skillDescriptionLabel, definition.SkillDescription);
 
-            SetText(
-                attributeLabel,
-                text.BuildAttributeSymbol(definition) + "  " +
-                text.BuildAttributeLabel(definition)
-            );
+            // 記号と名前の重複（R/B RED / BLUE）はやめ、名前だけを出します。
+            SetText(attributeLabel, text.BuildAttributeLabel(definition));
 
             if (attributeChip != null && palette != null)
             {
@@ -92,8 +122,6 @@ namespace CoreBeasts.Units
                     palette.GetColors(definition.PrimaryAttribute).PrimaryColor;
             }
 
-            SetGauge(powerGauge, definition.Power);
-            SetGauge(coreGauge, definition.Core);
         }
 
         /// <summary>未選択状態の表示。</summary>
@@ -112,6 +140,7 @@ namespace CoreBeasts.Units
             SetText(attributeLabel, placeholder);
             SetText(powerLabel, placeholder);
             SetText(coreLabel, placeholder);
+            ShowCoreIcon(false);
             SetText(skillNameLabel, placeholder);
             SetText(skillDescriptionLabel, string.Empty);
 
@@ -120,18 +149,19 @@ namespace CoreBeasts.Units
                 attributeChip.enabled = false;
             }
 
-            SetGauge(powerGauge, 0);
-            SetGauge(coreGauge, 0);
         }
 
-        private void SetGauge(Image gauge, int value)
+        /// <summary>COREアイコンの出し入れ。装飾なので入力は取りません。</summary>
+        private void ShowCoreIcon(bool visible)
         {
-            if (gauge == null)
+            if (coreIcon == null)
             {
                 return;
             }
 
-            gauge.fillAmount = Mathf.Clamp01((float)value / gaugeMaxValue);
+            coreIcon.enabled = visible;
+            coreIcon.raycastTarget = false;
+            coreIcon.color = StatLinePresenter.CoreIconColor;
         }
 
         private static void SetText(TMP_Text label, string value)

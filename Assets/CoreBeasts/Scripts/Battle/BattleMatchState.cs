@@ -12,7 +12,7 @@ namespace CoreBeasts.Battle
         /// <summary>CPUのマッチ勝利。</summary>
         CpuWin = 2,
 
-        /// <summary>規定ラウンドを終えても先取数へ届かなかった引き分け。</summary>
+        /// <summary>全ラウンドを終えて、双方の勝利数が同数だった引き分け。</summary>
         Draw = 3,
     }
 }

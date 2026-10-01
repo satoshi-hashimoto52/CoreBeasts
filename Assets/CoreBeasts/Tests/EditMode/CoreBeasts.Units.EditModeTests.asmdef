@@ -3,6 +3,8 @@
     "rootNamespace": "CoreBeasts.Units.Tests",
     "references": [
         "CoreBeasts.Units",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

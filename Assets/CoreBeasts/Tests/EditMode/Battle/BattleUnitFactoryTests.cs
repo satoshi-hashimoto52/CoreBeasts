@@ -39,7 +39,14 @@ namespace CoreBeasts.Battle.Tests
             Assert.That(unit.InstanceId, Is.EqualTo("inst_1"));
             Assert.That(unit.PrimaryAttribute, Is.EqualTo(UnitAttribute.Green));
             Assert.That(unit.HasSecondaryAttribute, Is.False);
-            Assert.That(unit.Power, Is.EqualTo(73));
+
+            // 色別POWERなので、持っている色で引きます。
+            Assert.That(unit.PowerOf(UnitAttribute.Green), Is.EqualTo(73));
+
+            // 持っていない色は0です。単一のPOWERは存在しません。
+            Assert.That(unit.PowerOf(UnitAttribute.Red), Is.Zero);
+            Assert.That(unit.PowerOf(UnitAttribute.Blue), Is.Zero);
+            Assert.That(unit.AttributePowers.Count, Is.EqualTo(1));
         }
 
         [Test]

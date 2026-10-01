@@ -292,15 +292,29 @@ namespace CoreBeasts.Battle.Tests
         }
 
         [Test]
-        public void TryCreate_AcceptsZeroPower()
+        public void TryCreate_RejectsZeroPower()
         {
+            // 色別POWERへ移行したため、0以下のPOWERは不正データです。
+            // どの色で比べるのかが決まっている以上、0の色は成立しません。
             List<BattleUnit> units = TestBattleUnits.CreateUnits("p", UnitAttribute.Red);
             units[1] = TestBattleUnits.Single("p1", UnitAttribute.Red, 0);
 
             bool created = BattleSquad.TryCreate(units, out _, out BattleError error);
 
-            Assert.That(created, Is.True);
-            Assert.That(error, Is.EqualTo(BattleError.None));
+            Assert.That(created, Is.False, "POWER 0 を受け入れてはいけません。");
+            Assert.That(error, Is.EqualTo(BattleError.NegativePower));
+        }
+
+        [Test]
+        public void TryCreate_RejectsNegativePower()
+        {
+            List<BattleUnit> units = TestBattleUnits.CreateUnits("p", UnitAttribute.Red);
+            units[1] = TestBattleUnits.Single("p1", UnitAttribute.Red, -1);
+
+            bool created = BattleSquad.TryCreate(units, out _, out BattleError error);
+
+            Assert.That(created, Is.False);
+            Assert.That(error, Is.EqualTo(BattleError.NegativePower));
         }
     }
 }

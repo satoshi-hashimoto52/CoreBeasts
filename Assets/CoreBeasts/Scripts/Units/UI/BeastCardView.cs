@@ -39,8 +39,10 @@ namespace CoreBeasts.Units
         [SerializeField] private Image background;
         [SerializeField] private Image selectionFrame;
         [SerializeField] private BeastThumbnailView thumbnail;
-        [SerializeField] private Image attributeChip;
-        [SerializeField] private TMP_Text attributeLabel;
+
+        [Tooltip("属性をカード外周のフレームと薄い背景で示す描画。属性チップの代わりです。")]
+        [SerializeField] private DiagonalAttributeCardGraphic attributeSurface;
+
         [SerializeField] private TMP_Text nameLabel;
         [SerializeField] private TMP_Text levelLabel;
 
@@ -106,6 +108,12 @@ namespace CoreBeasts.Units
 
         private void OnDisable()
         {
+            // 編成ドラッグの途中で無効化・破棄されると、
+            // OnEndDrag も OnPointerUp も届きません。
+            // ここで終了を通知しないと DragGhost が画面へ残り続け、
+            // 一覧の下に機械獣がもう1体、大きく出たままになります。
+            CancelDragIfActive();
+
             RestoreScroll();
             Gesture.Reset();
 
@@ -113,6 +121,31 @@ namespace CoreBeasts.Units
             {
                 liftView.ResetImmediate();
             }
+        }
+
+        /// <summary>
+        /// 編成ドラッグ中なら、終了を必ず通知します。
+        /// 通知先は破棄済みかもしれないため、Unityの生存確認を通してから呼びます。
+        /// </summary>
+        private void CancelDragIfActive()
+        {
+            if (Gesture.State != CardGestureState.SquadDragging)
+            {
+                return;
+            }
+
+            IBeastCardListener target = listener;
+
+            // 状態を先に戻します。通知の途中で再入しても二重に流れません。
+            Gesture.Reset();
+
+            if (target is UnityEngine.Object unityListener && unityListener == null)
+            {
+                // 通知先がすでに破棄されています。呼ぶと例外になります。
+                return;
+            }
+
+            target?.OnCardDragEnd(boundBeast, null);
         }
 
         private void OnDestroy()
@@ -153,17 +186,17 @@ namespace CoreBeasts.Units
                 levelLabel.text = text.FormatLevel(beast.Level);
             }
 
-            if (attributeLabel != null)
+            // 属性はチップと文字ではなく、カード外周のフレームと薄い背景で示します。
+            if (attributeSurface != null)
             {
-                attributeLabel.text =
-                    text.BuildAttributeSymbol(definition) + " " +
-                    text.BuildAttributeLabel(definition);
-            }
+                AttributeColorResolver.ResolveCardColors(
+                    palette,
+                    definition,
+                    out Color cardPrimary,
+                    out Color cardSecondary,
+                    out bool isDual);
 
-            if (attributeChip != null && palette != null)
-            {
-                attributeChip.color =
-                    palette.GetColors(definition.PrimaryAttribute).PrimaryColor;
+                attributeSurface.Apply(cardPrimary, cardSecondary, isDual);
             }
 
             if (liftView != null)

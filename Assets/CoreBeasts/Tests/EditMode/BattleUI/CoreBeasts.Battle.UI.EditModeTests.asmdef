@@ -1,0 +1,28 @@
+{
+    "name": "CoreBeasts.Battle.UI.EditModeTests",
+    "rootNamespace": "CoreBeasts.Battle.UI.Tests",
+    "references": [
+        "CoreBeasts.Battle.UI",
+        "CoreBeasts.Battle",
+        "CoreBeasts.Units",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

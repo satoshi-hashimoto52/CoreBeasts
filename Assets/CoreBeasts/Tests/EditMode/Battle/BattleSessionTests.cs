@@ -476,7 +476,7 @@ namespace CoreBeasts.Battle.Tests
         }
 
         [Test]
-        public void SevenRoundsWithoutFourWins_EndTheMatchAsDraw()
+        public void SevenRoundsWithEqualWins_EndTheMatchAsDraw()
         {
             BattleSession session = new BattleSession(
                 SquadWithPowers("p", 60, 60, 60, 10, 10, 10, 50),
@@ -490,6 +490,197 @@ namespace CoreBeasts.Battle.Tests
 
             Assert.That(session.PlayerWins, Is.EqualTo(3));
             Assert.That(session.CpuWins, Is.EqualTo(3));
+            Assert.That(session.State, Is.EqualTo(BattleMatchState.Draw));
+        }
+
+        // ---------------- 新しい終了条件（最大7・先に4勝・逆転不能で確定） ----------------
+
+        [Test]
+        public void ThreeWinsTwoLossesAndTwoDraws_IsAPlayerWin()
+        {
+            // 勝3 / 敗2 / 分2。4勝には届きませんが、勝数で上回ります。
+            BattleSession session = new BattleSession(
+                SquadWithPowers("p", 100, 100, 100, 10, 10, 50, 50),
+                SquadWithPowers("c", 10, 10, 10, 100, 100, 50, 50),
+                RecordingUnitSelector.First());
+
+            for (int i = 0; i < BattleSession.MaxRounds; i++)
+            {
+                PlayRound(session, "p" + i);
+            }
+
+            Assert.That(session.PlayerWins, Is.EqualTo(3));
+            Assert.That(session.CpuWins, Is.EqualTo(2));
+            Assert.That(session.CompletedRounds, Is.EqualTo(BattleSession.MaxRounds));
+
+            Assert.That(
+                session.State,
+                Is.EqualTo(BattleMatchState.PlayerWin),
+                "3対2で DRAW を出してはいけません。");
+        }
+
+        [Test]
+        public void TwoWinsThreeLossesAndTwoDraws_IsACpuWin()
+        {
+            BattleSession session = new BattleSession(
+                SquadWithPowers("p", 100, 100, 10, 10, 10, 50, 50),
+                SquadWithPowers("c", 10, 10, 100, 100, 100, 50, 50),
+                RecordingUnitSelector.First());
+
+            for (int i = 0; i < BattleSession.MaxRounds; i++)
+            {
+                PlayRound(session, "p" + i);
+            }
+
+            Assert.That(session.PlayerWins, Is.EqualTo(2));
+            Assert.That(session.CpuWins, Is.EqualTo(3));
+            Assert.That(session.State, Is.EqualTo(BattleMatchState.CpuWin));
+        }
+
+        [Test]
+        public void OneWinAndSixDraws_IsAPlayerWin()
+        {
+            BattleSession session = new BattleSession(
+                SquadWithPowers("p", 100, 50, 50, 50, 50, 50, 50),
+                SquadWithPowers("c", 10, 50, 50, 50, 50, 50, 50),
+                RecordingUnitSelector.First());
+
+            for (int i = 0; i < BattleSession.MaxRounds; i++)
+            {
+                PlayRound(session, "p" + i);
+            }
+
+            Assert.That(session.PlayerWins, Is.EqualTo(1));
+            Assert.That(session.CpuWins, Is.Zero);
+            Assert.That(session.State, Is.EqualTo(BattleMatchState.PlayerWin));
+        }
+
+        [Test]
+        public void AnUnreachableLeadStopsTheMatchBeforeTheSeventhRound()
+        {
+            // 5戦で 3対0 + 分2。残り2でもCPUは 3対2 までしか行けません。
+            BattleSession session = new BattleSession(
+                SquadWithPowers("p", 100, 100, 100, 50, 50, 50, 50),
+                SquadWithPowers("c", 10, 10, 10, 50, 50, 50, 50),
+                RecordingUnitSelector.First());
+
+            PlayRound(session, "p0");
+            PlayRound(session, "p1");
+            PlayRound(session, "p2");
+
+            // 3対0・残り4。まだ追いつけるので続きます。
+            Assert.That(session.PlayerWins, Is.EqualTo(3));
+            Assert.That(
+                session.State,
+                Is.EqualTo(BattleMatchState.InProgress),
+                "リードしているだけで終わってはいけません。");
+
+            PlayRound(session, "p3");   // 引き分け。3対0・残り3。
+            Assert.That(session.State, Is.EqualTo(BattleMatchState.InProgress));
+
+            PlayRound(session, "p4");   // 引き分け。3対0・残り2 → 逆転不能。
+
+            Assert.That(session.CompletedRounds, Is.EqualTo(5));
+            Assert.That(session.State, Is.EqualTo(BattleMatchState.PlayerWin));
+        }
+
+        [Test]
+        public void AnEarlyFinishLeavesTheRemainingUnitsUnused()
+        {
+            BattleSession session = CreateSession(Strong, Weak);
+
+            for (int i = 0; i < BattleSession.WinsRequired; i++)
+            {
+                PlayRound(session, "p" + i);
+            }
+
+            Assert.That(session.State, Is.EqualTo(BattleMatchState.PlayerWin));
+            Assert.That(session.CompletedRounds, Is.EqualTo(BattleSession.WinsRequired));
+
+            // 使わなかった3体は使用済みになりません。履歴にも入りません。
+            Assert.That(
+                session.PlayerAvailableUnits.Count,
+                Is.EqualTo(BattleSession.MaxRounds - BattleSession.WinsRequired));
+
+            for (int i = BattleSession.WinsRequired; i < BattleSession.MaxRounds; i++)
+            {
+                Assert.That(
+                    session.IsPlayerUnitUsed("p" + i),
+                    Is.False,
+                    "p" + i + " は出していないのに使用済みになっています。");
+            }
+
+            Assert.That(
+                session.History.Count,
+                Is.EqualTo(BattleSession.WinsRequired),
+                "実行したラウンドぶんだけが履歴に残ります。");
+        }
+
+        [Test]
+        public void NoFurtherRoundIsPlayedOnceTheResultIsCertain()
+        {
+            BattleSession session = CreateSession(Strong, Weak);
+
+            for (int i = 0; i < BattleSession.WinsRequired; i++)
+            {
+                PlayRound(session, "p" + i);
+            }
+
+            Assert.That(session.IsFinished, Is.True);
+
+            SelectionResult rejected = session.SelectPlayerUnit("p4");
+
+            Assert.That(rejected.Success, Is.False);
+            Assert.That(rejected.Error, Is.EqualTo(BattleError.MatchAlreadyFinished));
+            Assert.That(session.CompletedRounds, Is.EqualTo(BattleSession.WinsRequired));
+        }
+
+        [Test]
+        public void TheStateAlwaysMatchesThePureEvaluator()
+        {
+            // UI もセッションも、勝敗はこの1つの式だけから決まります。
+            BattleSession session = new BattleSession(
+                SquadWithPowers("p", 100, 10, 100, 10, 50, 100, 10),
+                SquadWithPowers("c", 10, 100, 10, 100, 50, 10, 100),
+                RecordingUnitSelector.First());
+
+            for (int i = 0; i < BattleSession.MaxRounds && !session.IsFinished; i++)
+            {
+                PlayRound(session, "p" + i);
+
+                Assert.That(
+                    session.State,
+                    Is.EqualTo(BattleSession.EvaluateMatchState(
+                        session.PlayerWins,
+                        session.CpuWins,
+                        session.CompletedRounds,
+                        BattleSession.MaxRounds)),
+                    session.CompletedRounds + "戦目で状態が式と食い違います。");
+            }
+        }
+
+        [Test]
+        public void TheWinCountsNeverIncludeRoundDraws()
+        {
+            BattleSession session = CreateSession(Even, Even);
+
+            for (int i = 0; i < BattleSession.MaxRounds; i++)
+            {
+                PlayRound(session, "p" + i);
+            }
+
+            int drawRounds = 0;
+
+            for (int i = 0; i < session.History.Count; i++)
+            {
+                if (session.History[i].Winner == RoundWinner.Draw)
+                {
+                    drawRounds++;
+                }
+            }
+
+            Assert.That(drawRounds, Is.EqualTo(BattleSession.MaxRounds));
+            Assert.That(session.PlayerWins + session.CpuWins, Is.Zero);
             Assert.That(session.State, Is.EqualTo(BattleMatchState.Draw));
         }
 
