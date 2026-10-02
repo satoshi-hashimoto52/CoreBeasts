@@ -103,6 +103,43 @@ namespace CoreBeasts.Battle
         /// <summary>プレイヤーの編成。</summary>
         public BattleSquad PlayerSquad => playerSquad;
 
+        /// <summary>
+        /// 指定したプレイヤー個体を今ラウンドに出した場合の ATTRIBUTE LINK（副作用なし）。
+        /// 選択前の予告に使います。使用済み・編成外・終了後は <see cref="AttributeLinkResult.None"/> です。
+        ///
+        /// プレイヤー自身の履歴だけを見ます。CPU の選出や CPU 側の LINK は返しません。
+        /// </summary>
+        public AttributeLinkResult PreviewPlayerLink(string instanceId)
+        {
+            if (IsFinished || string.IsNullOrEmpty(instanceId) || usedPlayerIds.Contains(instanceId))
+            {
+                return AttributeLinkResult.None;
+            }
+
+            BattleUnit candidate = playerSquad.Find(instanceId);
+
+            if (candidate == null)
+            {
+                return AttributeLinkResult.None;
+            }
+
+            return AttributeLink.Evaluate(LastPlayerUnit, candidate, LastPlayerLink.ChainCount);
+        }
+
+        /// <summary>直前のラウンドでプレイヤーが出した個体。まだ無ければ null。</summary>
+        private BattleUnit LastPlayerUnit => history.Count > 0 ? history[history.Count - 1].PlayerUnit : null;
+
+        /// <summary>直前のラウンドでCPUが出した個体。まだ無ければ null。</summary>
+        private BattleUnit LastCpuUnit => history.Count > 0 ? history[history.Count - 1].CpuUnit : null;
+
+        /// <summary>直前のラウンドのプレイヤー側 LINK。まだ無ければチェーン1。</summary>
+        private AttributeLinkResult LastPlayerLink =>
+            history.Count > 0 ? history[history.Count - 1].PlayerLink : AttributeLinkResult.None;
+
+        /// <summary>直前のラウンドのCPU側 LINK。まだ無ければチェーン1。</summary>
+        private AttributeLinkResult LastCpuLink =>
+            history.Count > 0 ? history[history.Count - 1].CpuLink : AttributeLinkResult.None;
+
         /// <summary>プレイヤーの未使用個体。呼ぶたびに読み取り専用の新しい一覧を返します。</summary>
         public IReadOnlyList<BattleUnit> PlayerAvailableUnits =>
             CreateAvailableUnits(playerSquad, usedPlayerIds);
@@ -241,14 +278,32 @@ namespace CoreBeasts.Battle
             BattleUnit playerUnit = pendingPlayerUnit;
             BattleUnit cpuUnit = pendingCpuUnit;
 
-            RoundOutcome outcome = BattleRules.ResolveRound(playerUnit, cpuUnit);
+            // ATTRIBUTE LINK（Phase 4）: 双方に同じ規則で、自分の直前の個体だけから求めます。
+            // ここまでは状態を一切変えません。判定が例外を投げても、チェーンも履歴も進みません。
+            AttributeLinkResult playerLink = AttributeLink.Evaluate(
+                LastPlayerUnit, playerUnit, LastPlayerLink.ChainCount);
+            AttributeLinkResult cpuLink = AttributeLink.Evaluate(
+                LastCpuUnit, cpuUnit, LastCpuLink.ChainCount);
+
+            // 元の個体（とそのPOWER）は書き換えず、LINKを反映した一時的な個体で判定します。
+            BattleUnit playerEffective = AttributeLink.Apply(playerUnit, playerLink);
+            BattleUnit cpuEffective = AttributeLink.Apply(cpuUnit, cpuLink);
+
+            RoundOutcome outcome = BattleRules.ResolveRound(playerEffective, cpuEffective);
 
             RoundResult round = new RoundResult(
                 CurrentRound,
                 playerUnit,
                 cpuUnit,
                 outcome.Winner,
-                outcome.Decision);
+                outcome.Decision,
+                outcome.DecidingAttribute,
+                playerLink,
+                cpuLink,
+                playerEffective,
+                cpuEffective,
+                outcome.PlayerComparedValue,
+                outcome.CpuComparedValue);
 
             usedPlayerIds.Add(playerUnit.InstanceId);
             usedCpuIds.Add(cpuUnit.InstanceId);

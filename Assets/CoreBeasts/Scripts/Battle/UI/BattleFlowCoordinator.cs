@@ -361,6 +361,21 @@ namespace CoreBeasts.Battle.UI
         }
 
         /// <summary>
+        /// 指定したプレイヤー個体を今ラウンドに出した場合の ATTRIBUTE LINK（副作用なし）。
+        /// 選択前の予告だけに使います。CPU の選出や CPU 側の LINK は返しません。
+        /// 選出待ち以外では <see cref="AttributeLinkResult.None"/> です。
+        /// </summary>
+        public AttributeLinkResult PreviewPlayerLink(string instanceId)
+        {
+            if (Session == null || State != BattleUiState.Selecting)
+            {
+                return AttributeLinkResult.None;
+            }
+
+            return Session.PreviewPlayerLink(instanceId);
+        }
+
+        /// <summary>
         /// 結果バナーを閉じ、次ラウンドまたは最終結果へ移ります。
         /// </summary>
         public bool AdvanceToNextRound()

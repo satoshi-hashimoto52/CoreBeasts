@@ -30,6 +30,11 @@ MonoBehaviour:
   cpuWin: CPU WIN
   matchDraw: DRAW
   unitSummaryFormat: '{0}  {1}'
+  linkBonusFormat: "\u540C\u3058\u5C5E\u6027\u3067 POWER +{0}"
+  linkCueFormat: "\u5C5E\u6027\u30EA\u30F3\u30AF {0}\u9023\u9396\uFF01\nPOWER +{1}"
+  linkedPowerFormat: "{0}<size=70%>\uFF08\u30EA\u30F3\u30AF+{1}\uFF09</size>"
+  unlinkedPowerFormat: "{0} "
+  linkPowerDecisionFormat: "POWER\u52DD\u5229  {0}\u5BFE {1}"
   rematch: REMATCH
   squadRequired: SQUAD REQUIRED
   squadRequiredHint: SET 7 CORE BEASTS

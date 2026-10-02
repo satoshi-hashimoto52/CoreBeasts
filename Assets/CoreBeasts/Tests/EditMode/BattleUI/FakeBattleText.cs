@@ -78,6 +78,31 @@ namespace CoreBeasts.Battle.UI.Tests
             return attributeSymbol + "  " + powerLine;
         }
 
+        public string FormatLinkBonus(int bonusPower)
+        {
+            return "同じ属性で POWER +" + Number(bonusPower);
+        }
+
+        public string FormatLinkCue(int chainCount, int bonusPower)
+        {
+            return "属性リンク " + Number(chainCount) + "連鎖！\nPOWER +" + Number(bonusPower);
+        }
+
+        public string FormatLinkedPower(int basePower, int bonusPower)
+        {
+            return Number(basePower) + "<size=70%>（リンク+" + Number(bonusPower) + "）</size>";
+        }
+
+        public string FormatUnlinkedPower(int power)
+        {
+            return Number(power) + " ";
+        }
+
+        public string FormatLinkPowerDecision(string playerPower, string cpuPower)
+        {
+            return ("POWER勝利  " + playerPower + "対 " + cpuPower).TrimEnd();
+        }
+
         private static string Number(int value)
         {
             return value.ToString(CultureInfo.InvariantCulture);

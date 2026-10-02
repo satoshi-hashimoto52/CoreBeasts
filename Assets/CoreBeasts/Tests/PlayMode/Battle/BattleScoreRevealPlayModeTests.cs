@@ -494,7 +494,7 @@ namespace CoreBeasts.Battle.UI.Tests
 
             foreach (BattleUnit unit in available)
             {
-                if (BattleRules.ResolveRound(unit, cpu).Winner == wanted)
+                if (BattleLinkPrediction.Resolve(session, unit, cpu).Winner == wanted)
                 {
                     onGoal = true;
                     return unit.InstanceId;

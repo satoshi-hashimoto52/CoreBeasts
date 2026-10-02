@@ -45,6 +45,22 @@ namespace CoreBeasts.Battle.UI
         [SerializeField] private string matchDraw = "DRAW";
         [SerializeField] private string unitSummaryFormat = "{0}  {1}";
 
+        [Header("Attribute link")]
+        [Tooltip("戦闘中・選択前予告の LINK ボーナス（{0}=ボーナス）。")]
+        [SerializeField] private string linkBonusFormat = "同じ属性で POWER +{0}";
+
+        [Tooltip("LINK 演出の文字（{0}=実チェーン数, {1}=ボーナス）。2行で出します。")]
+        [SerializeField] [TextArea(2, 3)] private string linkCueFormat = "属性リンク {0}連鎖！\nPOWER +{1}";
+
+        [Tooltip("LINK 加算を受けた側の比較値（{0}=基礎値, {1}=加算値）。加算値はその数値のすぐ後ろに、少し小さく付けます（両側に付いても1行に収まるように）。")]
+        [SerializeField] private string linkedPowerFormat = "{0}<size=70%>（リンク+{1}）</size>";
+
+        [Tooltip("LINK 加算の無い側の比較値（{0}=値）。")]
+        [SerializeField] private string unlinkedPowerFormat = "{0} ";
+
+        [Tooltip("LINK が絡んだ POWER 決着の理由（{0}=PLAYER の比較値, {1}=CPU の比較値）。")]
+        [SerializeField] private string linkPowerDecisionFormat = "POWER勝利  {0}対 {1}";
+
         [Header("Match end")]
         [SerializeField] private string rematch = "REMATCH";
 
@@ -134,6 +150,31 @@ namespace CoreBeasts.Battle.UI
         public string FormatUnitSummary(string attributeSymbol, string powerLine)
         {
             return SafeFormat(unitSummaryFormat, attributeSymbol, powerLine);
+        }
+
+        public string FormatLinkBonus(int bonusPower)
+        {
+            return SafeFormat(linkBonusFormat, bonusPower);
+        }
+
+        public string FormatLinkCue(int chainCount, int bonusPower)
+        {
+            return SafeFormat(linkCueFormat, chainCount, bonusPower);
+        }
+
+        public string FormatLinkedPower(int basePower, int bonusPower)
+        {
+            return SafeFormat(linkedPowerFormat, basePower, bonusPower);
+        }
+
+        public string FormatUnlinkedPower(int power)
+        {
+            return SafeFormat(unlinkedPowerFormat, power);
+        }
+
+        public string FormatLinkPowerDecision(string playerPower, string cpuPower)
+        {
+            return SafeFormat(linkPowerDecisionFormat, playerPower, cpuPower).TrimEnd();
         }
 
         /// <summary>書式が壊れていても例外を出さずに素の値を返します。</summary>

@@ -23,8 +23,17 @@ namespace CoreBeasts.Battle.UI
         [Tooltip("レーン全体の入力を止めるためのCanvasGroup。")]
         [SerializeField] private CanvasGroup canvasGroup;
 
+        [Tooltip("ATTRIBUTE LINK が成立したラウンドの枠に出す小さなマーカー（未設定なら出しません）。")]
+        [SerializeField] private BattleHistoryLinkMarkerGraphic linkMarkers;
+
         private readonly List<BattleHistorySlotView> slots =
             new List<BattleHistorySlotView>();
+
+        /// <summary>マーカーへ渡す枠の位置。最初に1回だけ用意し、毎回作り直しません。</summary>
+        private readonly RectTransform[] slotTransforms = new RectTransform[BattleHistoryModel.MaxEntries];
+
+        /// <summary>LINK マーカー（確認・テスト用）。</summary>
+        public BattleHistoryLinkMarkerGraphic LinkMarkers => linkMarkers;
 
         /// <summary>生成済みの枠。テストから確かめるために公開しています。</summary>
         public IReadOnlyList<BattleHistorySlotView> Slots => slots;
@@ -143,6 +152,24 @@ namespace CoreBeasts.Battle.UI
                     palette,
                     text);
             }
+
+            RefreshLinkMarkers(history);
+        }
+
+        /// <summary>LINK が成立したラウンドの枠だけに小さなマーカーを出します（PLAYER 側だけ）。</summary>
+        private void RefreshLinkMarkers(BattleHistoryModel history)
+        {
+            if (linkMarkers == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < slotTransforms.Length; i++)
+            {
+                slotTransforms[i] = i < slots.Count && slots[i] != null ? (RectTransform)slots[i].transform : null;
+            }
+
+            linkMarkers.SetMarkers(slotTransforms, history);
         }
 
         /// <summary>
@@ -152,6 +179,11 @@ namespace CoreBeasts.Battle.UI
         public void Clear()
         {
             Build();
+
+            if (linkMarkers != null)
+            {
+                linkMarkers.Clear();
+            }
         }
 
         /// <summary>未設定のSerializeFieldがあれば、フィールド名ごとに報告します。</summary>

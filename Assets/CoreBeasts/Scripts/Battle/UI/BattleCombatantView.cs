@@ -37,6 +37,9 @@ namespace CoreBeasts.Battle.UI
         [SerializeField] private TMP_Text coreLabel;
         [SerializeField] private TMP_Text skillNameLabel;
         [SerializeField] private TMP_Text skillDescriptionLabel;
+
+        [Tooltip("ATTRIBUTE LINK のボーナス表示（LINK +3 / LINK +6）。基礎POWERの表示とは別に出します。")]
+        [SerializeField] private TMP_Text linkLabel;
         [SerializeField] private Image attributeChip;
 
         [Tooltip("COREの小さなアイコン。文字ではなくGraphicで出します。")]
@@ -133,12 +136,45 @@ namespace CoreBeasts.Battle.UI
             battleText = battleTextSource;
         }
 
+        /// <summary>いま表示している ATTRIBUTE LINK。表示していなければ <see cref="AttributeLinkResult.None"/>。</summary>
+        public AttributeLinkResult ShownLink { get; private set; } = AttributeLinkResult.None;
+
+        /// <summary>LINK 表示のラベル（確認・テスト用）。</summary>
+        public TMP_Text LinkLabel => linkLabel;
+
+        /// <summary>
+        /// ATTRIBUTE LINK のボーナスを、基礎POWERとは別の表示で出します。
+        /// チェーン1（LINK 不成立）では何も出しません（LOST なども出しません）。
+        /// 2属性で2色とも共有していても、ボーナス表記は1回だけです。
+        /// </summary>
+        public void ShowLink(AttributeLinkResult link)
+        {
+            ShownLink = link.IsActive ? link : AttributeLinkResult.None;
+
+            if (linkLabel == null)
+            {
+                return;
+            }
+
+            bool visible = link.IsActive && link.BonusPower > 0 && battleText != null;
+
+            linkLabel.text = visible ? battleText.FormatLinkBonus(link.BonusPower) : string.Empty;
+            SetActive(linkLabel.gameObject, visible);
+        }
+
+        /// <summary>LINK 表示を消します。</summary>
+        public void ClearLink()
+        {
+            ShowLink(AttributeLinkResult.None);
+        }
+
         /// <summary>
         /// 個体を伏せたまま「選出済み」だけを示します。
         /// 名前・属性・POWERのいずれも出しません。
         /// </summary>
         public void ShowHidden()
         {
+            ClearLink();
             Current = null;
             IsRevealed = false;
             PrimaryColor = Color.white;
@@ -170,6 +206,7 @@ namespace CoreBeasts.Battle.UI
         /// <summary>まだ何も出していない状態にします。</summary>
         public void ShowEmpty()
         {
+            ClearLink();
             Current = null;
             IsRevealed = false;
             PrimaryColor = Color.white;
@@ -209,6 +246,9 @@ namespace CoreBeasts.Battle.UI
 
             Current = card;
             IsRevealed = true;
+
+            // 前の個体の LINK 表示は持ち越しません。画面が今回の LINK を渡し直します。
+            ClearLink();
 
             // 新しい個体を出す時点では、前ラウンドの敗北表示と薄まりを持ち越しません。
             IsDefeated = false;

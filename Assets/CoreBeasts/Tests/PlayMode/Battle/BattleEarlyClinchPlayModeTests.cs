@@ -30,7 +30,11 @@ namespace CoreBeasts.Battle.UI.Tests
         private const string RosterPath = "Assets/CoreBeasts/Data/Testing/Roster_Test.asset";
         private const string SetId = "1";
         private const float RoundSecondsLimit = 15f;
-        private const int MaxAttempts = 20;
+        /// <summary>
+        /// 狙った展開まで試し直す試合数の上限。3対1 の早期決着には引き分けが2回要りますが、
+        /// ATTRIBUTE LINK（Phase 4）の加算で POWER の同値が減り、引き分けが起きにくくなったため多めに取ります。
+        /// </summary>
+        private const int MaxAttempts = 40;
 
         private ISquadRepository originalRepository;
         private BattleScreenController controller;
@@ -540,7 +544,7 @@ namespace CoreBeasts.Battle.UI.Tests
             {
                 BattleSession session = controller.Coordinator.Session;
                 List<RoundWinner> wanted = Wanted(s, session);
-                string pick = Pick(session, wanted, out bool onGoal);
+                string pick = Pick(s, session, wanted, out bool onGoal);
 
                 m.OffGoal |= !onGoal;
 
@@ -728,7 +732,7 @@ namespace CoreBeasts.Battle.UI.Tests
         /// CPU の非公開の選出を読み、狙った勝敗になる個体を選びます（勝敗は BattleRules が決めます）。
         /// 候補の勝敗を出せる個体が無ければ、残りの先頭を返し、狙いから外れたと記録します。
         /// </summary>
-        private static string Pick(BattleSession session, List<RoundWinner> wanted, out bool onGoal)
+        private static string Pick(Scenario s, BattleSession session, List<RoundWinner> wanted, out bool onGoal)
         {
             FieldInfo field = typeof(BattleSession).GetField("pendingCpuUnit", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -737,11 +741,19 @@ namespace CoreBeasts.Battle.UI.Tests
             BattleUnit cpu = (BattleUnit)field.GetValue(session);
             IReadOnlyList<BattleUnit> available = session.PlayerAvailableUnits;
 
+            // 残り2体なら、CPU の最後の1体も決まっています。最終ラウンドまで読んで、
+            // 両方のラウンドが狙いどおりになる出し順を選びます（ATTRIBUTE LINK のチェーンも含めて予想します）。
+            if (TryPickForLastTwoRounds(s, session, out string twoRound))
+            {
+                onGoal = true;
+                return twoRound;
+            }
+
             foreach (RoundWinner want in wanted)
             {
                 foreach (BattleUnit unit in available)
                 {
-                    if (BattleRules.ResolveRound(unit, cpu).Winner == want)
+                    if (BattleLinkPrediction.Resolve(session, unit, cpu).Winner == want)
                     {
                         onGoal = true;
                         return unit.InstanceId;
@@ -751,6 +763,39 @@ namespace CoreBeasts.Battle.UI.Tests
 
             onGoal = false;
             return available[0].InstanceId;
+        }
+
+        /// <summary>
+        /// 残り2ラウンドを両方読み、今回と最終ラウンドの勝敗がどちらも狙いへ届く個体を選びます。
+        /// </summary>
+        private static bool TryPickForLastTwoRounds(Scenario s, BattleSession session, out string pick)
+        {
+            pick = null;
+            int done = session.CompletedRounds;
+
+            foreach (BattleLinkPrediction.TwoRoundPlan plan in BattleLinkPrediction.PredictLastTwoRounds(session))
+            {
+                int p = session.PlayerWins + (plan.First == RoundWinner.Player ? 1 : 0);
+                int c = session.CpuWins + (plan.First == RoundWinner.Cpu ? 1 : 0);
+
+                if (!Reachable(s, p, c, done + 1, plan.First))
+                {
+                    continue;
+                }
+
+                // 今回で狙いどおりに決着するなら、最終ラウンドは行われません。
+                bool decided = BattleSession.EvaluateMatchState(p, c, done + 1, BattleSession.MaxRounds) != BattleMatchState.InProgress;
+                int p2 = p + (plan.Second == RoundWinner.Player ? 1 : 0);
+                int c2 = c + (plan.Second == RoundWinner.Cpu ? 1 : 0);
+
+                if (decided || Reachable(s, p2, c2, done + 2, plan.Second))
+                {
+                    pick = plan.Now.InstanceId;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         // ---------------- 道具 ----------------
