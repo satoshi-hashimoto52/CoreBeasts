@@ -38,6 +38,12 @@ namespace CoreBeasts.Battle.UI
         /// </summary>
         public bool Append(string instanceId, int squadNumber, BattleSlotOutcome outcome)
         {
+            return Append(instanceId, squadNumber, outcome, false);
+        }
+
+        /// <summary>PLAYER 側の LINK 成立の有無まで含めて末尾へ足します。</summary>
+        public bool Append(string instanceId, int squadNumber, BattleSlotOutcome outcome, bool linked)
+        {
             if (string.IsNullOrEmpty(instanceId) ||
                 outcome == BattleSlotOutcome.None ||
                 entries.Count >= MaxEntries ||
@@ -46,7 +52,7 @@ namespace CoreBeasts.Battle.UI
                 return false;
             }
 
-            entries.Add(new BattleHistoryEntry(instanceId, squadNumber, outcome));
+            entries.Add(new BattleHistoryEntry(instanceId, squadNumber, outcome, linked));
 
             return true;
         }

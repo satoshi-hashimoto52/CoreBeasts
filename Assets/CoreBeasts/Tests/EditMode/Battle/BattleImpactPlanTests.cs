@@ -359,7 +359,7 @@ namespace CoreBeasts.Battle.Tests
             BattleUnit green = TestBattleUnits.Single("c", UnitAttribute.Green);
 
             RoundOutcome outcome = BattleRules.ResolveRound(red, green);
-            RoundResult result = new RoundResult(1, red, green, outcome.Winner, outcome.Decision);
+            RoundResult result = Resolved(red, green, outcome);
 
             Assert.That(result.Decision, Is.EqualTo(RoundDecision.AttributeAdvantage));
             Assert.That(DecidingAttributeLookup.Of(result), Is.EqualTo(UnitAttribute.Red));
@@ -378,7 +378,7 @@ namespace CoreBeasts.Battle.Tests
                     BattleUnit c = TestBattleUnits.Single("c", cpu, 40);
 
                     RoundOutcome outcome = BattleRules.ResolveRound(p, c);
-                    RoundResult result = new RoundResult(1, p, c, outcome.Winner, outcome.Decision);
+                    RoundResult result = Resolved(p, c, outcome);
 
                     BattleImpactKind kind = BattleRoundPresentationPlan.Create(
                         result.Winner, result.Decision, DecidingAttributeLookup.Of(result), true).ImpactKind;
@@ -422,6 +422,17 @@ namespace CoreBeasts.Battle.Tests
         }
 
         // ---------------- 補助 ----------------
+
+        /// <summary>
+        /// <see cref="BattleSession"/>と同じく、判定結果の勝因属性を記録した結果を作ります（LINK なし）。
+        /// Phase 4 から、勝因の属性は結果が正本で、画面側で判定し直しません。
+        /// </summary>
+        private static RoundResult Resolved(BattleUnit player, BattleUnit cpu, RoundOutcome outcome)
+        {
+            return new RoundResult(
+                1, player, cpu, outcome.Winner, outcome.Decision, outcome.DecidingAttribute,
+                AttributeLinkResult.None, AttributeLinkResult.None, player, cpu);
+        }
 
         private static void AssertHue(AttributeEffectProfile profile, float min, float max)
         {

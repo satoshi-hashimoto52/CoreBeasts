@@ -23,9 +23,36 @@ namespace CoreBeasts.Battle.UI
                 return text.RoundDraw;
             }
 
-            return result.Decision == RoundDecision.AttributeAdvantage
-                ? text.AttributeWin
-                : text.PowerWin;
+            if (result.Decision == RoundDecision.AttributeAdvantage)
+            {
+                return text.AttributeWin;
+            }
+
+            // ATTRIBUTE LINK が POWER 比較に効いたときだけ、基礎値と加算値を分けて出します。
+            if (result.Decision == RoundDecision.PowerComparison &&
+                (result.PlayerLink.BonusPower > 0 || result.CpuLink.BonusPower > 0))
+            {
+                return text.FormatLinkPowerDecision(
+                    BuildLinkedPower(result.PlayerComparedPower, result.PlayerLink.BonusPower, text),
+                    BuildLinkedPower(result.CpuComparedPower, result.CpuLink.BonusPower, text));
+            }
+
+            return text.PowerWin;
+        }
+
+        /// <summary>
+        /// 比較した値（LINK 反映後）を、基礎値と加算値へ分けます。加算値はその側の数値のすぐ後ろに付くので、
+        /// どちらへ加算されたかを取り違えません。
+        /// LINK は各属性へ同じ値を足すため、基礎値は比較値からボーナスを引いた値です。
+        /// </summary>
+        private static string BuildLinkedPower(int comparedPower, int bonusPower, IBattleTextSource text)
+        {
+            if (bonusPower <= 0)
+            {
+                return text.FormatUnlinkedPower(comparedPower);
+            }
+
+            return text.FormatLinkedPower(comparedPower - bonusPower, bonusPower);
         }
 
         /// <summary>ラウンド勝者の表示。</summary>

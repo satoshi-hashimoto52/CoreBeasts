@@ -17,12 +17,22 @@ namespace CoreBeasts.Battle.UI
         /// <summary>PLAYERから見た結果。</summary>
         public readonly BattleSlotOutcome Outcome;
 
+        /// <summary>このラウンドで PLAYER 側の ATTRIBUTE LINK が成立していたか。</summary>
+        public readonly bool Linked;
+
         public BattleHistoryEntry(
             string instanceId, int squadNumber, BattleSlotOutcome outcome)
+            : this(instanceId, squadNumber, outcome, false)
+        {
+        }
+
+        public BattleHistoryEntry(
+            string instanceId, int squadNumber, BattleSlotOutcome outcome, bool linked)
         {
             InstanceId = instanceId;
             SquadNumber = squadNumber;
             Outcome = outcome;
+            Linked = linked;
         }
 
         /// <summary>中身のある枠か。</summary>

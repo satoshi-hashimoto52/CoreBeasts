@@ -77,6 +77,10 @@ namespace CoreBeasts.Battle.UI
         [Tooltip("FINAL CORE / CORE BREAK。未設定なら省きます（進行は変わりません）。")]
         [SerializeField] private BattleMatchCueView matchCue;
 
+        [Header("Attribute link (Phase 4)")]
+        [Tooltip("ATTRIBUTE LINK の演出。未設定なら省きます（勝敗と進行は変わりません）。")]
+        [SerializeField] private BattleAttributeLinkView attributeLinkView;
+
         [Tooltip("右上の歯車から開く設定パネル。HOMEとFXはここへ入れます。")]
         [SerializeField] private BattleSettingsView settingsView;
 
@@ -182,6 +186,9 @@ namespace CoreBeasts.Battle.UI
 
         /// <summary>FINAL CORE / CORE BREAK の表示。</summary>
         public BattleMatchCueView MatchCue => matchCue;
+
+        /// <summary>ATTRIBUTE LINK の演出。</summary>
+        public BattleAttributeLinkView AttributeLinkView => attributeLinkView;
 
         /// <summary>進行役。テストから状態を確かめるために公開しています。</summary>
         public BattleFlowCoordinator Coordinator => coordinator;
@@ -461,6 +468,10 @@ namespace CoreBeasts.Battle.UI
             isDeploying = true;
             RefreshAll();
 
+            // ATTRIBUTE LINK（Phase 4）: 既存の移動と同時に始め、待ちません。
+            // ラウンド全体の長さは変わらず、LINK のための yield もありません。
+            PlayAttributeLink();
+
             if (deployTransition != null && playerCombatant != null && playerWheel != null)
             {
                 yield return deployTransition.PlayRoutine(
@@ -479,6 +490,11 @@ namespace CoreBeasts.Battle.UI
             if (playerCombatant != null && pendingCombatant != null)
             {
                 playerCombatant.Show(pendingCombatant);
+
+                if (coordinator.LastResult != null)
+                {
+                    playerCombatant.ShowLink(coordinator.LastResult.PlayerLink);
+                }
             }
 
             pendingCombatant = null;
@@ -641,9 +657,28 @@ namespace CoreBeasts.Battle.UI
                 FxEnabled);
         }
 
-        /// <summary>勝利コア・FINAL CORE・CORE BREAK の表示を消し、再生中のルーチンを止めます。</summary>
+        /// <summary>解決したラウンドの LINK 演出を、移動と並行して始めます。CPU はこの時点で公開済みです。</summary>
+        private void PlayAttributeLink()
+        {
+            RoundResult result = coordinator.LastResult;
+
+            if (attributeLinkView == null || result == null)
+            {
+                return;
+            }
+
+            attributeLinkView.Play(
+                BattleAttributeLinkPresentationPlan.Create(result.PlayerLink, result.CpuLink, FxEnabled));
+        }
+
+        /// <summary>勝利コア・FINAL CORE・CORE BREAK・LINK の表示を消し、再生中のルーチンを止めます。</summary>
         private void ResetMatchCues()
         {
+            if (attributeLinkView != null)
+            {
+                attributeLinkView.ResetVisuals();
+            }
+
             if (victoryCore != null)
             {
                 victoryCore.ResetVisuals();
@@ -817,7 +852,8 @@ namespace CoreBeasts.Battle.UI
             history.Append(
                 instanceId,
                 SquadNumberOf(instanceId),
-                coordinator.Outcomes.GetOutcome(instanceId));
+                coordinator.Outcomes.GetOutcome(instanceId),
+                result.PlayerLink.IsActive);
         }
 
         /// <summary>
@@ -906,11 +942,14 @@ namespace CoreBeasts.Battle.UI
             else if (playerCombatant != null)
             {
                 playerCombatant.Show(playerCard);
+                playerCombatant.ShowLink(result.PlayerLink);
             }
 
+            // CPU の個体と LINK は、解決したこの時点で初めて公開します（DEPLOY 前には出しません）。
             if (cpuCombatant != null)
             {
                 cpuCombatant.Show(FindCpuCard(result.CpuUnit.InstanceId));
+                cpuCombatant.ShowLink(result.CpuLink);
             }
         }
 
@@ -1174,6 +1213,9 @@ namespace CoreBeasts.Battle.UI
                 if (focused != null)
                 {
                     playerCombatant.Show(focused);
+
+                    // 選択前の予告。プレイヤー自身の直前の個体だけから、副作用なしで求めます。
+                    playerCombatant.ShowLink(coordinator.PreviewPlayerLink(focused.InstanceId));
                 }
                 else
                 {
@@ -1259,6 +1301,11 @@ namespace CoreBeasts.Battle.UI
             {
                 cpuCombatant.Bind(palette, text, battleText);
                 cpuCombatant.ShowHidden();
+            }
+
+            if (attributeLinkView != null)
+            {
+                attributeLinkView.Bind(palette, battleText);
             }
 
             if (scoreView != null)

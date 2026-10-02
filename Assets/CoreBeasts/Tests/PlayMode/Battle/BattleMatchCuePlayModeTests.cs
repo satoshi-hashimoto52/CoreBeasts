@@ -513,7 +513,8 @@ namespace CoreBeasts.Battle.UI.Tests
             while (controller.Coordinator.State == BattleUiState.Selecting)
             {
                 BattleSession session = controller.Coordinator.Session;
-                string pick = Pick(session, goal(session.PlayerWins, session.CpuWins), out bool onGoal);
+                bool onGoal = true;
+                string pick = PickForLastTwoRounds(session, goal) ?? Pick(session, goal(session.PlayerWins, session.CpuWins), out onGoal);
 
                 rec.OffGoal |= !onGoal;
 
@@ -551,6 +552,33 @@ namespace CoreBeasts.Battle.UI.Tests
         }
 
         /// <summary>
+        /// 残り2体なら最終ラウンドまで読み、今回と最終ラウンドの勝敗がどちらも狙いどおりになる出し順を選びます。
+        /// ATTRIBUTE LINK（Phase 4）の加算で POWER の同値が減り、最後の引き分けのような展開は
+        /// 1ラウンド先だけを見ていると届きにくくなったためです。届く出し順が無ければ null を返します。
+        /// </summary>
+        private static string PickForLastTwoRounds(BattleSession session, Goal goal)
+        {
+            foreach (BattleLinkPrediction.TwoRoundPlan plan in BattleLinkPrediction.PredictLastTwoRounds(session))
+            {
+                if (System.Array.IndexOf(goal(session.PlayerWins, session.CpuWins), plan.First) < 0)
+                {
+                    continue;
+                }
+
+                int p = session.PlayerWins + (plan.First == RoundWinner.Player ? 1 : 0);
+                int c = session.CpuWins + (plan.First == RoundWinner.Cpu ? 1 : 0);
+                bool decided = BattleSession.EvaluateMatchState(p, c, session.CompletedRounds + 1, BattleSession.MaxRounds) != BattleMatchState.InProgress;
+
+                if (decided || System.Array.IndexOf(goal(p, c), plan.Second) >= 0)
+                {
+                    return plan.Now.InstanceId;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// CPU の非公開の選出を読み、狙った勝敗になる個体を選びます（勝敗は BattleRules が決めます）。
         /// 狙いどおりの個体が無ければ、引き分けにならない個体、それも無ければ残りの先頭を返します。
         /// </summary>
@@ -570,7 +598,7 @@ namespace CoreBeasts.Battle.UI.Tests
             {
                 foreach (BattleUnit unit in available)
                 {
-                    if (BattleRules.ResolveRound(unit, cpu).Winner == want)
+                    if (BattleLinkPrediction.Resolve(session, unit, cpu).Winner == want)
                     {
                         onGoal = true;
                         return unit.InstanceId;
@@ -582,7 +610,7 @@ namespace CoreBeasts.Battle.UI.Tests
 
             foreach (BattleUnit unit in available)
             {
-                if (BattleRules.ResolveRound(unit, cpu).Winner != RoundWinner.Draw)
+                if (BattleLinkPrediction.Resolve(session, unit, cpu).Winner != RoundWinner.Draw)
                 {
                     return unit.InstanceId;
                 }

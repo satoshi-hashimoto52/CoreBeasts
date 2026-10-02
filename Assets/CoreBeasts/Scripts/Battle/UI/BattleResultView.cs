@@ -48,6 +48,36 @@ namespace CoreBeasts.Battle.UI
             text = uiText;
 
             HideAll();
+            PrepareFallbackGlyphs();
+        }
+
+        /// <summary>
+        /// 決着理由は英語（LiberationSans）と、ATTRIBUTE LINK の日本語（フォールバックの Noto Sans JP）が混ざります。
+        /// TMP はフォールバックの文字を初めて描くときに子の SubMesh を作るため、試合中に GameObject を作らないよう、
+        /// 画面へ出す前（Bind 時）に一度だけ日本語の理由でメッシュを作っておきます。文字と表示状態はすぐ元へ戻します。
+        /// </summary>
+        private void PrepareFallbackGlyphs()
+        {
+            if (decisionLabel == null || battleText == null)
+            {
+                return;
+            }
+
+            string sample = battleText.FormatLinkPowerDecision(
+                battleText.FormatLinkedPower(0, AttributeLink.SecondLinkBonus),
+                battleText.FormatUnlinkedPower(0));
+
+            bool bannerWasActive = bannerRoot != null && bannerRoot.activeSelf;
+            string previous = decisionLabel.text;
+
+            SetActive(bannerRoot, true);
+
+            decisionLabel.text = sample;
+            decisionLabel.ForceMeshUpdate(true, true);
+            decisionLabel.text = previous;
+            decisionLabel.ForceMeshUpdate(true, true);
+
+            SetActive(bannerRoot, bannerWasActive);
         }
 
         /// <summary>

@@ -95,5 +95,20 @@ namespace CoreBeasts.Battle.UI
 
         /// <summary>属性とPOWERを1行にまとめた表示（例: R/B  76）。</summary>
         string FormatUnitSummary(string attributeSymbol, string powerLine);
+
+        /// <summary>LINK ボーナスの表示（例: 同じ属性で POWER +3）。</summary>
+        string FormatLinkBonus(int bonusPower);
+
+        /// <summary>LINK 演出の文字（例: 属性リンク 2連鎖！ / POWER +3 の2行）。</summary>
+        string FormatLinkCue(int chainCount, int bonusPower);
+
+        /// <summary>LINK 加算を受けた側の比較値（例: 54（リンク+3）。加算部分は少し小さく出します）。</summary>
+        string FormatLinkedPower(int basePower, int bonusPower);
+
+        /// <summary>LINK 加算の無い側の比較値（例: 50）。</summary>
+        string FormatUnlinkedPower(int power);
+
+        /// <summary>LINK が絡んだ POWER 決着の理由（例: POWER勝利  54（リンク+3）対 50）。</summary>
+        string FormatLinkPowerDecision(string playerPower, string cpuPower);
     }
 }
