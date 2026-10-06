@@ -59,8 +59,12 @@ namespace CoreBeasts.Units.Tests
             yield return null;
 
             Assert.That(Find("CollectionPage").activeSelf, Is.True);
-            Assert.That(Find("CollectionPage").GetComponentInChildren<TMPro.TMP_Text>(true).text,
-                Does.Contain("COLLECTION"));
+            string collectionText = Find("CollectionPage")
+                .GetComponentInChildren<TMPro.TMP_Text>(true).text;
+            Assert.That(collectionText, Does.Contain("COLLECTION"));
+            Assert.That(collectionText, Does.Contain("[OWNED]"));
+            Assert.That(collectionText, Does.Not.Contain("◆"));
+            Assert.That(collectionText, Does.Not.Contain("◇"));
         }
 
         [UnityTest]

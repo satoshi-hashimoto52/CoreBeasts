@@ -143,7 +143,7 @@ namespace CoreBeasts.Home
                 if (copies > 0)
                 {
                     unique++;
-                    builder.Append("◆ ")
+                    builder.Append("[OWNED] ")
                         .Append(beast.Definition.DisplayName)
                         .Append("  Lv.").Append(beast.Level)
                         .Append("  ").Append(BuildAttributes(beast.Definition))
@@ -151,7 +151,7 @@ namespace CoreBeasts.Home
                 }
                 else
                 {
-                    builder.Append("◇ LOCKED CORE  ?????");
+                    builder.Append("[LOCKED] CORE  ?????");
                 }
 
                 builder.AppendLine();
