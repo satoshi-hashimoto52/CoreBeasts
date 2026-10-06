@@ -27,6 +27,8 @@ namespace CoreBeasts.Battle.UI
         [SerializeField] private TMP_Text finalTitleLabel;
         [SerializeField] private TMP_Text finalScoreLabel;
 
+        private TMP_Text finalRewardLabel;
+
         private IBattleTextSource battleText;
         private UiTextCatalog text;
 
@@ -47,6 +49,7 @@ namespace CoreBeasts.Battle.UI
             battleText = battleTextSource;
             text = uiText;
 
+            EnsureFinalRewardLabel();
             HideAll();
             PrepareFallbackGlyphs();
         }
@@ -188,6 +191,13 @@ namespace CoreBeasts.Battle.UI
             SetText(finalScoreLabel, battleText.FormatScore(playerWins, cpuWins));
         }
 
+        /// <summary>今回の試合で獲得したコインを最終結果へ出します。</summary>
+        public void SetMatchReward(int amount)
+        {
+            EnsureFinalRewardLabel();
+            SetText(finalRewardLabel, amount > 0 ? "+" + amount + " CORE COIN" : string.Empty);
+        }
+
         /// <summary>最終結果を閉じます。</summary>
         public void HideFinal()
         {
@@ -199,6 +209,36 @@ namespace CoreBeasts.Battle.UI
         {
             HideRound();
             HideFinal();
+            SetMatchReward(0);
+        }
+
+        /// <summary>
+        /// 既存シーンとの互換性を保ちながら、結果画面に報酬欄を一度だけ用意します。
+        /// Bind 時の生成なので、試合中や再戦のたびに GameObject は増えません。
+        /// </summary>
+        private void EnsureFinalRewardLabel()
+        {
+            if (finalRewardLabel != null || finalRoot == null || finalScoreLabel == null)
+            {
+                return;
+            }
+
+            GameObject labelObject = new GameObject("FinalRewardLabel", typeof(RectTransform));
+            RectTransform rect = labelObject.GetComponent<RectTransform>();
+            rect.SetParent(finalRoot.transform, false);
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = new Vector2(0f, 66f);
+            rect.sizeDelta = new Vector2(880f, 52f);
+
+            finalRewardLabel = labelObject.AddComponent<TextMeshProUGUI>();
+            finalRewardLabel.font = finalScoreLabel.font;
+            finalRewardLabel.fontSharedMaterial = finalScoreLabel.fontSharedMaterial;
+            finalRewardLabel.fontSize = 32f;
+            finalRewardLabel.color = new Color(1f, 0.8f, 0.34f, 1f);
+            finalRewardLabel.alignment = TextAlignmentOptions.Center;
+            finalRewardLabel.raycastTarget = false;
+            finalRewardLabel.text = string.Empty;
         }
 
         /// <summary>未設定のSerializeFieldがあれば、フィールド名ごとに報告します。</summary>

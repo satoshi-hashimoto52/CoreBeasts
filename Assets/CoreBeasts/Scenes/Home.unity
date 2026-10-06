@@ -370,6 +370,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoreBeasts.Home.HomeController
   battleButton: {fileID: 2128517620}
+  roster: {fileID: 11400000, guid: f41660ab37b74f31bcec5db007705766, type: 2}
 --- !u!4 &919305132
 Transform:
   m_ObjectHideFlags: 0

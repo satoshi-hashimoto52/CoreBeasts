@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+using CoreBeasts.Progression;
+
 namespace CoreBeasts.Units
 {
     /// <summary>
@@ -57,6 +59,8 @@ namespace CoreBeasts.Units
         private ISquadRepository repository;
         private OwnedCoreBeast draggingBeast;
         private bool dropHandled;
+        private PlayerProfile profile;
+        private IReadOnlyList<OwnedCoreBeast> visibleOwned;
 
         /// <summary>ドラッグ1回ごとに増える通し番号。</summary>
         private int dragSessionId;
@@ -87,14 +91,34 @@ namespace CoreBeasts.Units
 
             ApplyStaticLabels();
 
+            bool usesPersistentProgress = SquadRepositoryProvider.UsesPersistentStorage;
+
+            if (usesPersistentProgress)
+            {
+                profile = PlayerProfileProvider.Get(roster);
+                PlayerProfileProvider.EnsureStarterSquad(
+                    profile, roster, repository, setId);
+                visibleOwned = PlayerProfileProvider.OwnedFrom(profile, roster);
+            }
+            else
+            {
+                // 既存のテスト・診断用InMemory保存は、従来どおり全カタログを表示します。
+                visibleOwned = roster.Owned;
+            }
+
             formation.Changed += HandleFormationChanged;
 
-            rosterGrid.Build(roster, palette, text, this);
+            rosterGrid.Build(visibleOwned, palette, text, this);
             squadBar.Build(text, this);
 
             if (repository.TryLoad(setId, out SquadSnapshot saved))
             {
                 formation.Restore(saved, roster);
+
+                if (usesPersistentProgress)
+                {
+                    RemoveUnavailableSlots();
+                }
             }
 
             if (saveButton != null)
@@ -373,9 +397,9 @@ namespace CoreBeasts.Units
         /// </summary>
         private void ShowInitialDetail()
         {
-            for (int i = 0; i < roster.Owned.Count; i++)
+            for (int i = 0; i < visibleOwned.Count; i++)
             {
-                OwnedCoreBeast candidate = roster.Owned[i];
+                OwnedCoreBeast candidate = visibleOwned[i];
 
                 if (candidate != null && candidate.IsValid)
                 {
@@ -385,6 +409,19 @@ namespace CoreBeasts.Units
             }
 
             detailPanel.ShowEmpty();
+        }
+
+        private void RemoveUnavailableSlots()
+        {
+            for (int i = 0; i < SquadFormation.SlotCount; i++)
+            {
+                OwnedCoreBeast beast = formation.GetAt(i);
+
+                if (beast != null && (profile == null || !profile.Owns(beast.InstanceId)))
+                {
+                    formation.ClearAt(i);
+                }
+            }
         }
 
         private void HandleFormationChanged()
