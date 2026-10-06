@@ -25,6 +25,7 @@ MonoBehaviour:
   cost: 27
   power: 81
   core: 66
+  skillKind: 4
   skillName: STORM BITE
-  skillDescription: Counters both RED and BLUE rivals.
+  skillDescription: "\u76F8\u624B\u304CRED\u304BBLUE\u306A\u3089\u3001POWER +3\u3002"
   thumbnail: {fileID: 21300000, guid: f34642c54bbcd43829fc6a454c4584c9, type: 3}

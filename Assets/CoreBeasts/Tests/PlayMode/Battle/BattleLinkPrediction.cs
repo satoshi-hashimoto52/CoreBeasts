@@ -8,21 +8,18 @@ namespace CoreBeasts.Battle.UI.Tests
     /// <summary>
     /// PlayMode テストが「この個体を出せばどうなるか」を予想するための道具。
     ///
-    /// Phase 4 以降、実際のラウンドは ATTRIBUTE LINK を反映した POWER で判定されるため、
-    /// 予想も同じく、セッションの公開履歴から両陣営の LINK を求めて反映した個体で
-    /// 本物の <see cref="BattleRules"/> に判定させます（判定の写しは作りません）。
+    /// 実際のラウンドは ATTRIBUTE LINK（Phase 4）とユニークスキル（Phase 5）を反映した POWER で判定されるため、
+    /// 予想も同じく、セッションの公開履歴から両陣営の文脈を作り、製品と同じ純粋関数
+    /// <see cref="BattleRoundEvaluator.Evaluate"/> に判定させます（判定の写しは作りません）。
     /// </summary>
     internal static class BattleLinkPrediction
     {
         internal static RoundOutcome Resolve(BattleSession session, BattleUnit player, BattleUnit cpu)
         {
             IReadOnlyList<RoundResult> history = session.History;
-            RoundResult last = history.Count > 0 ? history[history.Count - 1] : null;
 
-            return Resolve(
-                last?.PlayerUnit, last != null ? last.PlayerLink.ChainCount : 0, player,
-                last?.CpuUnit, last != null ? last.CpuLink.ChainCount : 0, cpu,
-                out _, out _);
+            return BattleRoundEvaluator.Evaluate(
+                player, cpu, RoundSideContext.ForPlayer(history), RoundSideContext.ForCpu(history)).Outcome;
         }
 
         /// <summary>残り2ラウンドの出し順1通りぶんの予想。</summary>
@@ -77,21 +74,25 @@ namespace CoreBeasts.Battle.UI.Tests
             }
 
             IReadOnlyList<RoundResult> history = session.History;
-            RoundResult last = history.Count > 0 ? history[history.Count - 1] : null;
+            RoundSideContext playerContext = RoundSideContext.ForPlayer(history);
+            RoundSideContext cpuContext = RoundSideContext.ForCpu(history);
 
             for (int i = 0; i < 2; i++)
             {
                 BattleUnit now = available[i];
                 BattleUnit next = available[1 - i];
 
-                RoundOutcome first = Resolve(
-                    last?.PlayerUnit, last != null ? last.PlayerLink.ChainCount : 0, now,
-                    last?.CpuUnit, last != null ? last.CpuLink.ChainCount : 0, cpu,
-                    out AttributeLinkResult playerLink, out AttributeLinkResult cpuLink);
+                RoundEvaluation first = BattleRoundEvaluator.Evaluate(now, cpu, playerContext, cpuContext);
 
-                RoundOutcome second = Resolve(now, playerLink.ChainCount, next, cpu, cpuLink.ChainCount, lastCpu, out _, out _);
+                // 最終ラウンドの文脈は、今回の個体・チェーン・結果から作ります（製品の履歴と同じ作り方）。
+                RoundSideContext playerNext = new RoundSideContext(
+                    now, first.PlayerLink.ChainCount, RoundSideContext.ResultFor(first.Outcome.Winner, RoundWinner.Player));
+                RoundSideContext cpuNext = new RoundSideContext(
+                    cpu, first.CpuLink.ChainCount, RoundSideContext.ResultFor(first.Outcome.Winner, RoundWinner.Cpu));
 
-                plans.Add(new TwoRoundPlan(now, first.Winner, second.Winner));
+                RoundEvaluation second = BattleRoundEvaluator.Evaluate(next, lastCpu, playerNext, cpuNext);
+
+                plans.Add(new TwoRoundPlan(now, first.Outcome.Winner, second.Outcome.Winner));
             }
 
             return plans;
@@ -106,18 +107,5 @@ namespace CoreBeasts.Battle.UI.Tests
             return field.GetValue(session);
         }
 
-        /// <summary>
-        /// 直前の個体とチェーン数を与えて1ラウンドを予想します（2ラウンド先を読むときに使います）。
-        /// </summary>
-        internal static RoundOutcome Resolve(
-            BattleUnit previousPlayer, int previousPlayerChain, BattleUnit player,
-            BattleUnit previousCpu, int previousCpuChain, BattleUnit cpu,
-            out AttributeLinkResult playerLink, out AttributeLinkResult cpuLink)
-        {
-            playerLink = AttributeLink.Evaluate(previousPlayer, player, previousPlayerChain);
-            cpuLink = AttributeLink.Evaluate(previousCpu, cpu, previousCpuChain);
-
-            return BattleRules.ResolveRound(AttributeLink.Apply(player, playerLink), AttributeLink.Apply(cpu, cpuLink));
-        }
     }
 }

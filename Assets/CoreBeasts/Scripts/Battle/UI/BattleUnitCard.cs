@@ -55,7 +55,8 @@ namespace CoreBeasts.Battle.UI
             BattleUnit unit = new BattleUnit(
                 instanceId,
                 definition.AttributePowers,
-                definition.Core);
+                definition.Core,
+                definition.SkillKind);
 
             card = new BattleUnitCard(
                 instanceId,

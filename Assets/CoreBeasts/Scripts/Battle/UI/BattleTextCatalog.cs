@@ -61,6 +61,43 @@ namespace CoreBeasts.Battle.UI
         [Tooltip("LINK が絡んだ POWER 決着の理由（{0}=PLAYER の比較値, {1}=CPU の比較値）。")]
         [SerializeField] private string linkPowerDecisionFormat = "POWER勝利  {0}対 {1}";
 
+        [Header("Unique skill")]
+        [Tooltip("自分の POWER が上がるスキル（{0}=加算）。選択前予告と戦闘中表示。")]
+        [SerializeField] private string skillSelfBonusFormat = "スキル発動 POWER +{0}";
+
+        [Tooltip("相手の POWER を下げるスキル（{0}=減算）。選択前予告と戦闘中表示。")]
+        [SerializeField] private string skillOpponentPenaltyFormat = "スキル発動 相手の POWER -{0}";
+
+        [Tooltip("スキル発動の演出（{0}=スキル名, {1}=2行目）。2行で出します。")]
+        [SerializeField] [TextArea(2, 3)] private string skillCueFormat = "{0} 発動\n{1}";
+
+        [Tooltip("CRIMSON BITE の2行目（{0}=加算）。")]
+        [SerializeField] private string crimsonBiteCueFormat = "同じ属性の流れで POWER +{0}";
+
+        [Tooltip("TIDAL HOWL の2行目（{0}=減算）。")]
+        [SerializeField] private string tidalHowlCueFormat = "相手の POWER -{0}";
+
+        [Tooltip("VERDANT FANG の2行目（{0}=加算）。")]
+        [SerializeField] private string verdantFangCueFormat = "直前の敗北で POWER +{0}";
+
+        [Tooltip("STORM BITE の2行目（{0}=加算）。")]
+        [SerializeField] private string stormBiteCueFormat = "相手がREDかBLUEで POWER +{0}";
+
+        [Tooltip("内訳つきの比較値（{0}=基礎値, {1}=内訳）。内訳はその数値のすぐ後ろに、少し小さく付けます。")]
+        [SerializeField] private string powerBreakdownFormat = "{0}<size=70%>（{1}）</size>";
+
+        [Tooltip("内訳: LINK の加算（{0}=加算）。")]
+        [SerializeField] private string linkPartFormat = "リンク+{0}";
+
+        [Tooltip("内訳: 自分のスキルの加算（{0}=加算）。")]
+        [SerializeField] private string skillPartFormat = "スキル+{0}";
+
+        [Tooltip("内訳: 相手のスキルから受けた減算（{0}=減算）。")]
+        [SerializeField] private string penaltyPartFormat = "妨害-{0}";
+
+        [Tooltip("内訳どうしの区切り。")]
+        [SerializeField] private string breakdownSeparator = "／";
+
         [Header("Match end")]
         [SerializeField] private string rematch = "REMATCH";
 
@@ -176,6 +213,63 @@ namespace CoreBeasts.Battle.UI
         {
             return SafeFormat(linkPowerDecisionFormat, playerPower, cpuPower).TrimEnd();
         }
+
+        public string FormatSkillSelfBonus(int bonusPower)
+        {
+            return SafeFormat(skillSelfBonusFormat, bonusPower);
+        }
+
+        public string FormatSkillOpponentPenalty(int penaltyPower)
+        {
+            return SafeFormat(skillOpponentPenaltyFormat, penaltyPower);
+        }
+
+        public string FormatSkillCue(string skillName, CoreBeasts.Units.UniqueSkillKind kind, int value)
+        {
+            string line;
+
+            switch (kind)
+            {
+                case CoreBeasts.Units.UniqueSkillKind.CrimsonBite:
+                    line = SafeFormat(crimsonBiteCueFormat, value);
+                    break;
+                case CoreBeasts.Units.UniqueSkillKind.TidalHowl:
+                    line = SafeFormat(tidalHowlCueFormat, value);
+                    break;
+                case CoreBeasts.Units.UniqueSkillKind.VerdantFang:
+                    line = SafeFormat(verdantFangCueFormat, value);
+                    break;
+                case CoreBeasts.Units.UniqueSkillKind.StormBite:
+                    line = SafeFormat(stormBiteCueFormat, value);
+                    break;
+                default:
+                    return string.Empty;
+            }
+
+            return SafeFormat(skillCueFormat, skillName ?? string.Empty, line);
+        }
+
+        public string FormatPowerBreakdown(int basePower, string parts)
+        {
+            return SafeFormat(powerBreakdownFormat, basePower, parts ?? string.Empty);
+        }
+
+        public string FormatLinkPart(int bonusPower)
+        {
+            return SafeFormat(linkPartFormat, bonusPower);
+        }
+
+        public string FormatSkillPart(int bonusPower)
+        {
+            return SafeFormat(skillPartFormat, bonusPower);
+        }
+
+        public string FormatPenaltyPart(int penaltyPower)
+        {
+            return SafeFormat(penaltyPartFormat, penaltyPower);
+        }
+
+        public string BreakdownSeparator => breakdownSeparator;
 
         /// <summary>書式が壊れていても例外を出さずに素の値を返します。</summary>
         private static string SafeFormat(string format, params object[] args)

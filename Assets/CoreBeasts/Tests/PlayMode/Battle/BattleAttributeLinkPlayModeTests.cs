@@ -460,15 +460,19 @@ namespace CoreBeasts.Battle.UI.Tests
                 Assert.That(frames[i].CpuText, Is.Empty);
             }
 
-            // 論理: 基礎の個体は書き換えず、LINK 反映後の個体で判定しています。
+            // 論理: 基礎の個体は書き換えず、LINK（とユニークスキル・妨害。Phase 5）を反映した個体で判定しています。
             Assert.That(result.PlayerEffectiveUnit, Is.Not.Null);
             Assert.That(result.CpuEffectiveUnit, Is.Not.Null);
 
             if (result.PlayerLink.IsActive)
             {
+                UnitAttribute primary = result.PlayerUnit.PrimaryAttribute;
+                int expected = result.PlayerUnit.PowerOf(primary) + result.PlayerLink.BonusPower +
+                               result.PlayerSkill.SelfBonus - result.CpuSkill.OpponentPenalty;
+
                 Assert.That(result.PlayerEffectiveUnit, Is.Not.SameAs(result.PlayerUnit));
-                Assert.That(result.PlayerEffectiveUnit.PowerOf(result.PlayerUnit.PrimaryAttribute),
-                    Is.EqualTo(result.PlayerUnit.PowerOf(result.PlayerUnit.PrimaryAttribute) + result.PlayerLink.BonusPower));
+                Assert.That(result.PlayerEffectiveUnit.PowerOf(primary),
+                    Is.EqualTo(expected < UniqueSkill.MinimumPower ? UniqueSkill.MinimumPower : expected));
             }
         }
 

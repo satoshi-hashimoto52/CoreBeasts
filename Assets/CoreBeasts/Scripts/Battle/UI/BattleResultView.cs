@@ -51,6 +51,42 @@ namespace CoreBeasts.Battle.UI
             PrepareFallbackGlyphs();
         }
 
+        /// <summary>決着理由の文字の大きさの下限（元の大きさに対する割合）。</summary>
+        public const float MinimumDecisionScale = 0.6f;
+
+        private float decisionBaseFontSize;
+
+        /// <summary>
+        /// 決着理由が1行に収まらないとき（LINK・スキル・妨害の内訳が両側に付いたときなど）だけ、
+        /// 文字の大きさを幅に合わせて下げます（下限は元の60%）。収まる理由は元の大きさのままです。
+        /// 自動サイズ（enableAutoSizing）は使わず、決まった計算で1回だけ合わせます。
+        /// </summary>
+        private void FitDecisionLabel()
+        {
+            if (decisionLabel == null)
+            {
+                return;
+            }
+
+            if (decisionBaseFontSize <= 0f)
+            {
+                decisionBaseFontSize = decisionLabel.fontSize;
+            }
+
+            decisionLabel.fontSize = decisionBaseFontSize;
+
+            Vector4 margin = decisionLabel.margin;
+            float width = decisionLabel.rectTransform.rect.width - margin.x - margin.z;
+            float preferred = decisionLabel.GetPreferredValues(decisionLabel.text, float.PositiveInfinity, float.PositiveInfinity).x;
+
+            if (width > 0f && preferred > width)
+            {
+                decisionLabel.fontSize = Mathf.Max(
+                    decisionBaseFontSize * MinimumDecisionScale,
+                    Mathf.Floor(decisionBaseFontSize * (width / preferred) * 0.98f));
+            }
+        }
+
         /// <summary>
         /// 決着理由は英語（LiberationSans）と、ATTRIBUTE LINK の日本語（フォールバックの Noto Sans JP）が混ざります。
         /// TMP はフォールバックの文字を初めて描くときに子の SubMesh を作るため、試合中に GameObject を作らないよう、
@@ -66,6 +102,11 @@ namespace CoreBeasts.Battle.UI
             string sample = battleText.FormatLinkPowerDecision(
                 battleText.FormatLinkedPower(0, AttributeLink.SecondLinkBonus),
                 battleText.FormatUnlinkedPower(0));
+
+            if (decisionBaseFontSize <= 0f)
+            {
+                decisionBaseFontSize = decisionLabel.fontSize;
+            }
 
             bool bannerWasActive = bannerRoot != null && bannerRoot.activeSelf;
             string previous = decisionLabel.text;
@@ -105,6 +146,7 @@ namespace CoreBeasts.Battle.UI
             }
 
             SetText(decisionLabel, BattleResultText.BuildDecision(result, battleText));
+            FitDecisionLabel();
             SetText(
                 winnerLabel,
                 BattleResultText.BuildRoundWinner(result.Winner, battleText));

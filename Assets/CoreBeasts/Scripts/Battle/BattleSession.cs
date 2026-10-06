@@ -123,22 +123,36 @@ namespace CoreBeasts.Battle
                 return AttributeLinkResult.None;
             }
 
-            return AttributeLink.Evaluate(LastPlayerUnit, candidate, LastPlayerLink.ChainCount);
+            RoundSideContext context = RoundSideContext.ForPlayer(history);
+
+            return AttributeLink.Evaluate(context.PreviousUnit, candidate, context.PreviousLinkChain);
         }
 
-        /// <summary>直前のラウンドでプレイヤーが出した個体。まだ無ければ null。</summary>
-        private BattleUnit LastPlayerUnit => history.Count > 0 ? history[history.Count - 1].PlayerUnit : null;
+        /// <summary>
+        /// 指定したプレイヤー個体を今ラウンドに出した場合のユニークスキルの予告（副作用なし）。
+        /// 使用済み・編成外・終了後は <see cref="UniqueSkillPreview.None"/> です。
+        ///
+        /// プレイヤー自身の直前の個体と結果だけを見ます。CPU の選出・属性・発動は使わず、返しません。
+        /// 相手の選出で決まる STORM BITE は、発動を予告しません（<see cref="UniqueSkillPreviewState.DependsOnOpponent"/>）。
+        /// </summary>
+        public UniqueSkillPreview PreviewPlayerSkill(string instanceId)
+        {
+            if (IsFinished || string.IsNullOrEmpty(instanceId) || usedPlayerIds.Contains(instanceId))
+            {
+                return UniqueSkillPreview.None;
+            }
 
-        /// <summary>直前のラウンドでCPUが出した個体。まだ無ければ null。</summary>
-        private BattleUnit LastCpuUnit => history.Count > 0 ? history[history.Count - 1].CpuUnit : null;
+            BattleUnit candidate = playerSquad.Find(instanceId);
 
-        /// <summary>直前のラウンドのプレイヤー側 LINK。まだ無ければチェーン1。</summary>
-        private AttributeLinkResult LastPlayerLink =>
-            history.Count > 0 ? history[history.Count - 1].PlayerLink : AttributeLinkResult.None;
+            if (candidate == null)
+            {
+                return UniqueSkillPreview.None;
+            }
 
-        /// <summary>直前のラウンドのCPU側 LINK。まだ無ければチェーン1。</summary>
-        private AttributeLinkResult LastCpuLink =>
-            history.Count > 0 ? history[history.Count - 1].CpuLink : AttributeLinkResult.None;
+            RoundSideContext context = RoundSideContext.ForPlayer(history);
+
+            return UniqueSkill.Preview(candidate, context.PreviousUnit, context.PreviousResult);
+        }
 
         /// <summary>プレイヤーの未使用個体。呼ぶたびに読み取り専用の新しい一覧を返します。</summary>
         public IReadOnlyList<BattleUnit> PlayerAvailableUnits =>
@@ -278,32 +292,17 @@ namespace CoreBeasts.Battle
             BattleUnit playerUnit = pendingPlayerUnit;
             BattleUnit cpuUnit = pendingCpuUnit;
 
-            // ATTRIBUTE LINK（Phase 4）: 双方に同じ規則で、自分の直前の個体だけから求めます。
-            // ここまでは状態を一切変えません。判定が例外を投げても、チェーンも履歴も進みません。
-            AttributeLinkResult playerLink = AttributeLink.Evaluate(
-                LastPlayerUnit, playerUnit, LastPlayerLink.ChainCount);
-            AttributeLinkResult cpuLink = AttributeLink.Evaluate(
-                LastCpuUnit, cpuUnit, LastCpuLink.ChainCount);
-
-            // 元の個体（とそのPOWER）は書き換えず、LINKを反映した一時的な個体で判定します。
-            BattleUnit playerEffective = AttributeLink.Apply(playerUnit, playerLink);
-            BattleUnit cpuEffective = AttributeLink.Apply(cpuUnit, cpuLink);
-
-            RoundOutcome outcome = BattleRules.ResolveRound(playerEffective, cpuEffective);
-
-            RoundResult round = new RoundResult(
-                CurrentRound,
+            // ATTRIBUTE LINK（Phase 4）とユニークスキル（Phase 5）: 双方に同じ規則で、自分の履歴だけから求めます。
+            // 元の個体は書き換えず、反映した一時的な個体を変更していない BattleRules で判定します。
+            // ここまでは状態を一切変えません。判定が例外を投げても、チェーンもスキルも履歴も進みません。
+            RoundEvaluation evaluation = BattleRoundEvaluator.Evaluate(
                 playerUnit,
                 cpuUnit,
-                outcome.Winner,
-                outcome.Decision,
-                outcome.DecidingAttribute,
-                playerLink,
-                cpuLink,
-                playerEffective,
-                cpuEffective,
-                outcome.PlayerComparedValue,
-                outcome.CpuComparedValue);
+                RoundSideContext.ForPlayer(history),
+                RoundSideContext.ForCpu(history));
+
+            RoundOutcome outcome = evaluation.Outcome;
+            RoundResult round = new RoundResult(CurrentRound, evaluation);
 
             usedPlayerIds.Add(playerUnit.InstanceId);
             usedCpuIds.Add(cpuUnit.InstanceId);

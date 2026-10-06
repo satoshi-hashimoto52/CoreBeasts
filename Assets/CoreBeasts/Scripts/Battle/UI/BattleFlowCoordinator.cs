@@ -376,6 +376,20 @@ namespace CoreBeasts.Battle.UI
         }
 
         /// <summary>
+        /// 指定したプレイヤー個体を今ラウンドに出した場合のユニークスキルの予告（副作用なし）。
+        /// プレイヤー自身の履歴だけから作り、CPU の情報は使いません。選出待ち以外では予告しません。
+        /// </summary>
+        public UniqueSkillPreview PreviewPlayerSkill(string instanceId)
+        {
+            if (Session == null || State != BattleUiState.Selecting)
+            {
+                return UniqueSkillPreview.None;
+            }
+
+            return Session.PreviewPlayerSkill(instanceId);
+        }
+
+        /// <summary>
         /// 結果バナーを閉じ、次ラウンドまたは最終結果へ移ります。
         /// </summary>
         public bool AdvanceToNextRound()
