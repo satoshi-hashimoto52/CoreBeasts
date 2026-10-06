@@ -103,6 +103,55 @@ namespace CoreBeasts.Battle.UI.Tests
             return ("POWER勝利  " + playerPower + "対 " + cpuPower).TrimEnd();
         }
 
+        public string FormatSkillSelfBonus(int bonusPower)
+        {
+            return "スキル発動 POWER +" + Number(bonusPower);
+        }
+
+        public string FormatSkillOpponentPenalty(int penaltyPower)
+        {
+            return "スキル発動 相手の POWER -" + Number(penaltyPower);
+        }
+
+        public string FormatSkillCue(string skillName, CoreBeasts.Units.UniqueSkillKind kind, int value)
+        {
+            switch (kind)
+            {
+                case CoreBeasts.Units.UniqueSkillKind.CrimsonBite:
+                    return skillName + " 発動\n同じ属性の流れで POWER +" + Number(value);
+                case CoreBeasts.Units.UniqueSkillKind.TidalHowl:
+                    return skillName + " 発動\n相手の POWER -" + Number(value);
+                case CoreBeasts.Units.UniqueSkillKind.VerdantFang:
+                    return skillName + " 発動\n直前の敗北で POWER +" + Number(value);
+                case CoreBeasts.Units.UniqueSkillKind.StormBite:
+                    return skillName + " 発動\n相手がREDかBLUEで POWER +" + Number(value);
+                default:
+                    return string.Empty;
+            }
+        }
+
+        public string FormatPowerBreakdown(int basePower, string parts)
+        {
+            return Number(basePower) + "<size=70%>（" + parts + "）</size>";
+        }
+
+        public string FormatLinkPart(int bonusPower)
+        {
+            return "リンク+" + Number(bonusPower);
+        }
+
+        public string FormatSkillPart(int bonusPower)
+        {
+            return "スキル+" + Number(bonusPower);
+        }
+
+        public string FormatPenaltyPart(int penaltyPower)
+        {
+            return "妨害-" + Number(penaltyPower);
+        }
+
+        public string BreakdownSeparator => "／";
+
         private static string Number(int value)
         {
             return value.ToString(CultureInfo.InvariantCulture);

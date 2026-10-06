@@ -46,14 +46,25 @@ namespace CoreBeasts.Battle
         {
         }
 
-        /// <summary>色別POWERをそのまま受け取ります。並び順は登録順として保ちます。</summary>
+        /// <summary>色別POWERをそのまま受け取ります。並び順は登録順として保ちます。スキルは持ちません。</summary>
         public BattleUnit(
             string instanceId,
             IReadOnlyList<AttributePower> attributePowers,
             int core = 0)
+            : this(instanceId, attributePowers, core, UniqueSkillKind.None)
+        {
+        }
+
+        /// <summary>色別POWER・CORE・ユニークスキルを受け取ります。</summary>
+        public BattleUnit(
+            string instanceId,
+            IReadOnlyList<AttributePower> attributePowers,
+            int core,
+            UniqueSkillKind skill)
         {
             InstanceId = instanceId ?? string.Empty;
             Core = core;
+            Skill = skill;
 
             int count = attributePowers != null ? attributePowers.Count : 0;
 
@@ -70,6 +81,9 @@ namespace CoreBeasts.Battle
 
         /// <summary>CORE。POWERでも決着しなかったときの比較値です。</summary>
         public int Core { get; }
+
+        /// <summary>ユニークスキル（Phase 5）。持たなければ <see cref="UniqueSkillKind.None"/>。</summary>
+        public UniqueSkillKind Skill { get; }
 
         /// <summary>色別POWER。登録順（主属性が先）です。</summary>
         public IReadOnlyList<AttributePower> AttributePowers => attributePowers;
@@ -171,7 +185,7 @@ namespace CoreBeasts.Battle
                 scaled[i] = attributePowers[i].WithPower(value < 1 ? 1 : value);
             }
 
-            return new BattleUnit(InstanceId, scaled, Core);
+            return new BattleUnit(InstanceId, scaled, Core, Skill);
         }
 
         /// <summary>指定色のPOWERだけを差し替えた個体を返します。</summary>
@@ -186,7 +200,7 @@ namespace CoreBeasts.Battle
                     : attributePowers[i];
             }
 
-            return new BattleUnit(InstanceId, changed, Core);
+            return new BattleUnit(InstanceId, changed, Core, Skill);
         }
 
         /// <summary>個体単体としての妥当性。問題がなければ<see cref="BattleError.None"/>。</summary>

@@ -110,5 +110,32 @@ namespace CoreBeasts.Battle.UI
 
         /// <summary>LINK が絡んだ POWER 決着の理由（例: POWER勝利  54（リンク+3）対 50）。</summary>
         string FormatLinkPowerDecision(string playerPower, string cpuPower);
+
+        /// <summary>ユニークスキルで自分の POWER が上がる表示（例: スキル発動 POWER +4）。</summary>
+        string FormatSkillSelfBonus(int bonusPower);
+
+        /// <summary>ユニークスキルで相手の POWER を下げる表示（例: スキル発動 相手の POWER -4）。</summary>
+        string FormatSkillOpponentPenalty(int penaltyPower);
+
+        /// <summary>
+        /// スキル発動の演出の文字（例: CRIMSON BITE 発動 / 同じ属性の流れで POWER +4 の2行）。
+        /// <paramref name="skillName"/>は定義の表示名で、<paramref name="kind"/>で2行目の文言を選びます。
+        /// </summary>
+        string FormatSkillCue(string skillName, CoreBeasts.Units.UniqueSkillKind kind, int value);
+
+        /// <summary>内訳つきの比較値（例: 54（リンク+3／スキル+4））。<paramref name="parts"/>は内訳を区切りでつないだ文字。</summary>
+        string FormatPowerBreakdown(int basePower, string parts);
+
+        /// <summary>内訳: LINK の加算（例: リンク+3）。</summary>
+        string FormatLinkPart(int bonusPower);
+
+        /// <summary>内訳: 自分のスキルの加算（例: スキル+4）。</summary>
+        string FormatSkillPart(int bonusPower);
+
+        /// <summary>内訳: 相手のスキルから受けた減算（例: 妨害-4）。</summary>
+        string FormatPenaltyPart(int penaltyPower);
+
+        /// <summary>内訳どうしの区切り（例: ／）。</summary>
+        string BreakdownSeparator { get; }
     }
 }

@@ -28,31 +28,53 @@ namespace CoreBeasts.Battle.UI
                 return text.AttributeWin;
             }
 
-            // ATTRIBUTE LINK が POWER 比較に効いたときだけ、基礎値と加算値を分けて出します。
+            // ATTRIBUTE LINK とユニークスキルが POWER 比較に効いたときだけ、基礎値と内訳を分けて出します。
+            // 内訳は RoundResult に記録した値を読むだけで、最終値から逆算しません。
             if (result.Decision == RoundDecision.PowerComparison &&
-                (result.PlayerLink.BonusPower > 0 || result.CpuLink.BonusPower > 0))
+                (result.PlayerPower.HasModifiers || result.CpuPower.HasModifiers))
             {
                 return text.FormatLinkPowerDecision(
-                    BuildLinkedPower(result.PlayerComparedPower, result.PlayerLink.BonusPower, text),
-                    BuildLinkedPower(result.CpuComparedPower, result.CpuLink.BonusPower, text));
+                    BuildSidePower(result.PlayerPower, text),
+                    BuildSidePower(result.CpuPower, text));
             }
 
             return text.PowerWin;
         }
 
         /// <summary>
-        /// 比較した値（LINK 反映後）を、基礎値と加算値へ分けます。加算値はその側の数値のすぐ後ろに付くので、
-        /// どちらへ加算されたかを取り違えません。
-        /// LINK は各属性へ同じ値を足すため、基礎値は比較値からボーナスを引いた値です。
+        /// 1陣営の比較値。変化があれば「基礎値（リンク+3／スキル+4／妨害-4）」の形で、その側の数値のすぐ後ろに内訳を付けます。
+        /// どちらへ加算・減算されたかを取り違えません。変化が無ければ最終値だけを出します。
         /// </summary>
-        private static string BuildLinkedPower(int comparedPower, int bonusPower, IBattleTextSource text)
+        private static string BuildSidePower(ComparedPowerBreakdown power, IBattleTextSource text)
         {
-            if (bonusPower <= 0)
+            if (!power.HasModifiers)
             {
-                return text.FormatUnlinkedPower(comparedPower);
+                return text.FormatUnlinkedPower(power.Final);
             }
 
-            return text.FormatLinkedPower(comparedPower - bonusPower, bonusPower);
+            string parts = string.Empty;
+
+            if (power.Link != 0)
+            {
+                parts = Join(parts, text.FormatLinkPart(power.Link), text);
+            }
+
+            if (power.SelfSkill != 0)
+            {
+                parts = Join(parts, text.FormatSkillPart(power.SelfSkill), text);
+            }
+
+            if (power.OpponentPenalty != 0)
+            {
+                parts = Join(parts, text.FormatPenaltyPart(power.OpponentPenalty), text);
+            }
+
+            return text.FormatPowerBreakdown(power.Base, parts);
+        }
+
+        private static string Join(string parts, string part, IBattleTextSource text)
+        {
+            return parts.Length == 0 ? part : parts + text.BreakdownSeparator + part;
         }
 
         /// <summary>ラウンド勝者の表示。</summary>

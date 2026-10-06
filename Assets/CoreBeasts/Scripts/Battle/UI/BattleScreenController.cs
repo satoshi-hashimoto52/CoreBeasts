@@ -81,6 +81,10 @@ namespace CoreBeasts.Battle.UI
         [Tooltip("ATTRIBUTE LINK の演出。未設定なら省きます（勝敗と進行は変わりません）。")]
         [SerializeField] private BattleAttributeLinkView attributeLinkView;
 
+        [Header("Unique skill (Phase 5)")]
+        [Tooltip("ユニークスキル発動の演出。未設定なら省きます（勝敗と進行は変わりません）。")]
+        [SerializeField] private BattleSkillCueView skillCueView;
+
         [Tooltip("右上の歯車から開く設定パネル。HOMEとFXはここへ入れます。")]
         [SerializeField] private BattleSettingsView settingsView;
 
@@ -189,6 +193,9 @@ namespace CoreBeasts.Battle.UI
 
         /// <summary>ATTRIBUTE LINK の演出。</summary>
         public BattleAttributeLinkView AttributeLinkView => attributeLinkView;
+
+        /// <summary>ユニークスキル発動の演出。</summary>
+        public BattleSkillCueView SkillCueView => skillCueView;
 
         /// <summary>進行役。テストから状態を確かめるために公開しています。</summary>
         public BattleFlowCoordinator Coordinator => coordinator;
@@ -472,6 +479,9 @@ namespace CoreBeasts.Battle.UI
             // ラウンド全体の長さは変わらず、LINK のための yield もありません。
             PlayAttributeLink();
 
+            // ユニークスキル（Phase 5）: 同じく移動と同時に始め、待ちません。
+            PlaySkillCue();
+
             if (deployTransition != null && playerCombatant != null && playerWheel != null)
             {
                 yield return deployTransition.PlayRoutine(
@@ -494,6 +504,7 @@ namespace CoreBeasts.Battle.UI
                 if (coordinator.LastResult != null)
                 {
                     playerCombatant.ShowLink(coordinator.LastResult.PlayerLink);
+                    playerCombatant.ShowSkill(coordinator.LastResult.PlayerSkill);
                 }
             }
 
@@ -671,12 +682,50 @@ namespace CoreBeasts.Battle.UI
                 BattleAttributeLinkPresentationPlan.Create(result.PlayerLink, result.CpuLink, FxEnabled));
         }
 
-        /// <summary>勝利コア・FINAL CORE・CORE BREAK・LINK の表示を消し、再生中のルーチンを止めます。</summary>
+        /// <summary>
+        /// 解決したラウンドのユニークスキル発動の演出を、移動と並行して始めます。
+        /// 双方の選出は確定済みで、CPU の個体・スキルはこの時点で初めて画面へ出ます。
+        /// </summary>
+        private void PlaySkillCue()
+        {
+            RoundResult result = coordinator.LastResult;
+
+            if (skillCueView == null || result == null || battleText == null)
+            {
+                return;
+            }
+
+            skillCueView.Play(
+                BattleSkillPresentationPlan.Create(result.PlayerSkill, result.CpuSkill, FxEnabled),
+                SkillCueText(result.PlayerSkill, FindPlayerCard(result.PlayerUnit.InstanceId)),
+                SkillCueText(result.CpuSkill, FindCpuCard(result.CpuUnit.InstanceId)));
+        }
+
+        /// <summary>演出の文字。スキル名は定義の表示名で、ルールには使いません。</summary>
+        private string SkillCueText(UniqueSkillActivation skill, BattleUnitCard card)
+        {
+            if (!skill.Activated)
+            {
+                return string.Empty;
+            }
+
+            string skillName = card != null && card.Definition != null ? card.Definition.SkillName : string.Empty;
+            int value = skill.SelfBonus > 0 ? skill.SelfBonus : skill.OpponentPenalty;
+
+            return battleText.FormatSkillCue(skillName, skill.Kind, value);
+        }
+
+        /// <summary>勝利コア・FINAL CORE・CORE BREAK・LINK・スキルの表示を消し、再生中のルーチンを止めます。</summary>
         private void ResetMatchCues()
         {
             if (attributeLinkView != null)
             {
                 attributeLinkView.ResetVisuals();
+            }
+
+            if (skillCueView != null)
+            {
+                skillCueView.ResetVisuals();
             }
 
             if (victoryCore != null)
@@ -943,6 +992,7 @@ namespace CoreBeasts.Battle.UI
             {
                 playerCombatant.Show(playerCard);
                 playerCombatant.ShowLink(result.PlayerLink);
+                playerCombatant.ShowSkill(result.PlayerSkill);
             }
 
             // CPU の個体と LINK は、解決したこの時点で初めて公開します（DEPLOY 前には出しません）。
@@ -950,6 +1000,7 @@ namespace CoreBeasts.Battle.UI
             {
                 cpuCombatant.Show(FindCpuCard(result.CpuUnit.InstanceId));
                 cpuCombatant.ShowLink(result.CpuLink);
+                cpuCombatant.ShowSkill(result.CpuSkill);
             }
         }
 
@@ -1216,6 +1267,7 @@ namespace CoreBeasts.Battle.UI
 
                     // 選択前の予告。プレイヤー自身の直前の個体だけから、副作用なしで求めます。
                     playerCombatant.ShowLink(coordinator.PreviewPlayerLink(focused.InstanceId));
+                    playerCombatant.ShowSkillPreview(coordinator.PreviewPlayerSkill(focused.InstanceId));
                 }
                 else
                 {

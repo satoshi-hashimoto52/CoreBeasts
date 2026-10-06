@@ -40,6 +40,9 @@ namespace CoreBeasts.Battle.UI
 
         [Tooltip("ATTRIBUTE LINK のボーナス表示（LINK +3 / LINK +6）。基礎POWERの表示とは別に出します。")]
         [SerializeField] private TMP_Text linkLabel;
+
+        [Tooltip("ユニークスキルの発動・予告の表示（Phase 5）。任意。")]
+        [SerializeField] private TMP_Text skillLabel;
         [SerializeField] private Image attributeChip;
 
         [Tooltip("COREの小さなアイコン。文字ではなくGraphicで出します。")]
@@ -134,6 +137,33 @@ namespace CoreBeasts.Battle.UI
             palette = attributePalette;
             text = uiText;
             battleText = battleTextSource;
+
+            PrepareFallbackGlyphs();
+        }
+
+        /// <summary>
+        /// スキルの説明文は日本語で、LiberationSans のフォールバック（Noto Sans JP サブセット）から描きます。
+        /// TMP はフォールバックの文字を初めて描くときに子の SubMesh を作るため、試合中に GameObject を作らないよう、
+        /// 画面へ出す前（Bind 時）に一度だけ日本語でメッシュを作っておきます。文字と表示状態はすぐ元へ戻します。
+        /// </summary>
+        private void PrepareFallbackGlyphs()
+        {
+            if (skillDescriptionLabel == null || battleText == null)
+            {
+                return;
+            }
+
+            bool infoWasActive = infoRoot != null && infoRoot.activeSelf;
+            string previous = skillDescriptionLabel.text;
+
+            SetActive(infoRoot, true);
+
+            skillDescriptionLabel.text = battleText.FormatSkillOpponentPenalty(UniqueSkill.TidalHowlPenalty);
+            skillDescriptionLabel.ForceMeshUpdate(true, true);
+            skillDescriptionLabel.text = previous;
+            skillDescriptionLabel.ForceMeshUpdate(true, true);
+
+            SetActive(infoRoot, infoWasActive);
         }
 
         /// <summary>いま表示している ATTRIBUTE LINK。表示していなければ <see cref="AttributeLinkResult.None"/>。</summary>
@@ -168,6 +198,71 @@ namespace CoreBeasts.Battle.UI
             ShowLink(AttributeLinkResult.None);
         }
 
+        /// <summary>いま表示しているユニークスキル（戦闘中の発動）。予告中・非表示なら <see cref="UniqueSkillActivation.None"/>。</summary>
+        public UniqueSkillActivation ShownSkill { get; private set; } = UniqueSkillActivation.None;
+
+        /// <summary>いま表示している選択前予告。</summary>
+        public UniqueSkillPreview ShownSkillPreview { get; private set; } = UniqueSkillPreview.None;
+
+        /// <summary>スキル表示のラベル（確認・テスト用）。</summary>
+        public TMP_Text SkillLabel => skillLabel;
+
+        /// <summary>
+        /// 戦闘中のユニークスキルの発動を、基礎POWERとは別の表示で出します。発動しなければ何も出しません。
+        /// </summary>
+        public void ShowSkill(UniqueSkillActivation skill)
+        {
+            ShownSkillPreview = UniqueSkillPreview.None;
+            ShownSkill = skill.Activated ? skill : UniqueSkillActivation.None;
+
+            SetSkillText(skill.Activated ? skill.SelfBonus : 0, skill.Activated ? skill.OpponentPenalty : 0);
+        }
+
+        /// <summary>
+        /// 選択前予告。自分の履歴だけで発動が決まるときだけ出します（相手の選出で決まるものは出しません）。
+        /// </summary>
+        public void ShowSkillPreview(UniqueSkillPreview preview)
+        {
+            ShownSkill = UniqueSkillActivation.None;
+            ShownSkillPreview = preview.Activates ? preview : UniqueSkillPreview.None;
+
+            SetSkillText(preview.Activates ? preview.SelfBonus : 0, preview.Activates ? preview.OpponentPenalty : 0);
+        }
+
+        /// <summary>スキル表示を消します。</summary>
+        public void ClearSkill()
+        {
+            ShownSkill = UniqueSkillActivation.None;
+            ShownSkillPreview = UniqueSkillPreview.None;
+
+            SetSkillText(0, 0);
+        }
+
+        private void SetSkillText(int selfBonus, int opponentPenalty)
+        {
+            if (skillLabel == null)
+            {
+                return;
+            }
+
+            string value = string.Empty;
+
+            if (battleText != null)
+            {
+                if (selfBonus > 0)
+                {
+                    value = battleText.FormatSkillSelfBonus(selfBonus);
+                }
+                else if (opponentPenalty > 0)
+                {
+                    value = battleText.FormatSkillOpponentPenalty(opponentPenalty);
+                }
+            }
+
+            skillLabel.text = value;
+            SetActive(skillLabel.gameObject, value.Length > 0);
+        }
+
         /// <summary>
         /// 個体を伏せたまま「選出済み」だけを示します。
         /// 名前・属性・POWERのいずれも出しません。
@@ -175,6 +270,7 @@ namespace CoreBeasts.Battle.UI
         public void ShowHidden()
         {
             ClearLink();
+            ClearSkill();
             Current = null;
             IsRevealed = false;
             PrimaryColor = Color.white;
@@ -207,6 +303,7 @@ namespace CoreBeasts.Battle.UI
         public void ShowEmpty()
         {
             ClearLink();
+            ClearSkill();
             Current = null;
             IsRevealed = false;
             PrimaryColor = Color.white;
@@ -249,6 +346,7 @@ namespace CoreBeasts.Battle.UI
 
             // 前の個体の LINK 表示は持ち越しません。画面が今回の LINK を渡し直します。
             ClearLink();
+            ClearSkill();
 
             // 新しい個体を出す時点では、前ラウンドの敗北表示と薄まりを持ち越しません。
             IsDefeated = false;

@@ -23,6 +23,7 @@ MonoBehaviour:
   cost: 24
   power: 76
   core: 62
+  skillKind: 1
   skillName: CRIMSON BITE
-  skillDescription: Raises POWER while a RED ally leads.
+  skillDescription: "\u76F4\u524D\u306B\u51FA\u3057\u305F\u500B\u4F53\u304CRED\u306A\u3089\u3001POWER +4\u3002"
   thumbnail: {fileID: 21300000, guid: f34642c54bbcd43829fc6a454c4584c9, type: 3}

@@ -56,6 +56,10 @@ namespace CoreBeasts.Units
 
         [Header("Skill")]
         [SerializeField]
+        [Tooltip("ルールが使うスキルの種類。表示名（skillName）を変えてもルールは変わりません。")]
+        private UniqueSkillKind skillKind = UniqueSkillKind.None;
+
+        [SerializeField]
         private string skillName = "SKILL";
 
         [SerializeField]
@@ -136,6 +140,9 @@ namespace CoreBeasts.Units
 
             return fallback;
         }
+
+        /// <summary>ルールが使うスキルの種類。</summary>
+        public UniqueSkillKind SkillKind => skillKind;
 
         public string SkillName => skillName;
 

@@ -28,12 +28,13 @@ namespace CoreBeasts.Battle
 
             CoreBeastDefinition definition = owned.Definition;
 
-            // 色別POWERとCOREをそのまま渡します。
+            // 色別POWER・CORE・ユニークスキルの種類をそのまま渡します。
             // 共通POWERという1つの数字はもう作りません。
             unit = new BattleUnit(
                 owned.InstanceId,
                 definition.AttributePowers,
-                definition.Core);
+                definition.Core,
+                definition.SkillKind);
 
             return unit.Validate() == BattleError.None;
         }

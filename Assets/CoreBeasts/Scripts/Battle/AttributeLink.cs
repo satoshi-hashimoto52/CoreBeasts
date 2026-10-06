@@ -155,7 +155,7 @@ namespace CoreBeasts.Battle
                 boosted[i] = original.WithPower(original.Power + link.BonusPower);
             }
 
-            return new BattleUnit(unit.InstanceId, boosted, unit.Core);
+            return new BattleUnit(unit.InstanceId, boosted, unit.Core, unit.Skill);
         }
 
         /// <summary>個体が持つ属性のビット集合。範囲外の値は含めません（一致扱いにしません）。</summary>
