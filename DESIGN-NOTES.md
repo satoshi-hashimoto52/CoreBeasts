@@ -236,13 +236,52 @@ SettingsButton (Image + Button, RaycastTarget = ON)
 
 ### 今回やっていないこと
 
-- スキル効果の実行（名前と説明の表示のみ）
 - CPUの戦略AI（無作為選出のみ）
 - 本格的なエフェクト・サウンド・アニメーション用アセット
 - FX設定の永続化（バトル画面の中だけで保持）
-- 編成の永続化
 - CPU側の勝敗バッジ
 - 編成セットの切り替え（UnitSetのSETは現在のセット名を出すだけ）
+
+## Phase 6: Playable Vertical Slice
+
+戦闘だけで終わらず、獲得した報酬が次の編成へ戻る一周を成立させます。
+
+```
+Home → Battle → Reward → Gacha → Acquisition → Collection → UnitSet → Battle
+```
+
+### 経済値
+
+- 初期所持: 100 CORE COIN
+- ガチャ1回: 100 CORE COIN
+- 勝利報酬: 30
+- 引き分け報酬: 20
+- 敗北報酬: 10
+- 初期所持個体: カタログ先頭の7体。8体目以降はガチャで解放する
+- 重複獲得: 同じ個体の所持数を増やす。勝敗能力はまだ増やさない
+
+値は `GameEconomy` だけを正本とし、画面やバトルへ数値を散らしません。
+
+### 保存
+
+- `PlayerProfile` を `PlayerPrefs` のJSONへ保存する
+- コイン、戦績、所持個体ID、個体ごとの所持数を保持する
+- 編成セットも `PlayerPrefsSquadRepository` で保持する
+- テストは `InMemoryPlayerProfileRepository` / `InMemorySquadRepository` へ差し替える
+- 新規プレイヤーには所持7体とSET 1を作り、起動直後からBattleへ入れる
+
+### Home内の全画面遷移
+
+Homeシーン内に次の全画面ページを置き、シーン再読み込みなしで切り替えます。
+
+- Home: コイン、戦績、BATTLE / UNIT SET / GACHA / COLLECTION
+- Reward: 未確認の戦闘報酬をまとめて表示
+- Gacha: コストと残高を表示し、1回召喚
+- Acquisition: NEW / DUPLICATE、個体、属性、所持数を表示
+- Collection: 所持個体と未獲得個体を一覧表示
+
+報酬は試合決着時に即保存します。Reward画面は保存済み結果の確認なので、
+画面遷移中やアプリ終了でコインが失われません。
 
 ## モバイルUI原則
 

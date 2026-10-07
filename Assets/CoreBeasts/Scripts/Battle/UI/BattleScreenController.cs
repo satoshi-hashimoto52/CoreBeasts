@@ -1,6 +1,7 @@
 using System.Collections;
 
 using CoreBeasts.Shared.UI;
+using CoreBeasts.Progression;
 using CoreBeasts.Units;
 using TMPro;
 using UnityEngine;
@@ -135,6 +136,12 @@ namespace CoreBeasts.Battle.UI
         /// 再戦（<see cref="OnRematchClicked"/>）で false へ戻します。
         /// </summary>
         private bool finalCoreShown;
+
+        /// <summary>同じ試合結果を画面更新のたびに二重加算しないための印。</summary>
+        private bool rewardGrantedForMatch;
+
+        /// <summary>結果画面に出す、今回の試合で確定した報酬。</summary>
+        private int grantedMatchReward;
 
         /// <summary>
         /// 表示スコアをラウンド前の値に留めているか。
@@ -435,6 +442,8 @@ namespace CoreBeasts.Battle.UI
 
             // 新しい試合では FINAL CORE をもう一度出せます。
             finalCoreShown = false;
+            rewardGrantedForMatch = false;
+            grantedMatchReward = 0;
             holdScore = false;
             holdRound = false;
             LastMatchPlan = null;
@@ -1059,6 +1068,12 @@ namespace CoreBeasts.Battle.UI
 
             }
 
+            if (state == BattleUiState.MatchFinished)
+            {
+                // 報酬の確定はViewの有無に依存させません。
+                GrantMatchRewardOnce();
+            }
+
             if (resultView != null)
             {
                 if (state == BattleUiState.MatchFinished)
@@ -1067,6 +1082,7 @@ namespace CoreBeasts.Battle.UI
                         coordinator.MatchState,
                         coordinator.PlayerWins,
                         coordinator.CpuWins);
+                    resultView.SetMatchReward(grantedMatchReward);
                 }
                 else
                 {
@@ -1077,6 +1093,48 @@ namespace CoreBeasts.Battle.UI
             RefreshSelection();
             ApplyCombatantDefeat();
             RefreshButtons();
+        }
+
+        private void GrantMatchRewardOnce()
+        {
+            if (rewardGrantedForMatch || coordinator == null || roster == null)
+            {
+                return;
+            }
+
+            // 通常起動（Boot→Home）ではHomeが永続Repositoryへ切り替えます。
+            // テストが明示的に使うInMemory保存では端末プロフィールを変更しません。
+            if (!SquadRepositoryProvider.UsesPersistentStorage)
+            {
+                return;
+            }
+
+            BattleRewardOutcome outcome;
+
+            switch (coordinator.MatchState)
+            {
+                case BattleMatchState.PlayerWin:
+                    outcome = BattleRewardOutcome.Win;
+                    break;
+                case BattleMatchState.Draw:
+                    outcome = BattleRewardOutcome.Draw;
+                    break;
+                case BattleMatchState.CpuWin:
+                    outcome = BattleRewardOutcome.Loss;
+                    break;
+                default:
+                    return;
+            }
+
+            int reward = GameEconomy.RewardFor(outcome);
+            PlayerProfile profile = PlayerProfileProvider.Get(roster);
+
+            profile.RecordBattle(outcome, reward);
+            PlayerProfileProvider.Save();
+            GameFlowState.AddPendingReward(reward);
+
+            grantedMatchReward = reward;
+            rewardGrantedForMatch = true;
         }
 
         /// <summary>

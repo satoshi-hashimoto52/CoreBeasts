@@ -21,8 +21,6 @@ namespace CoreBeasts.Units
             UiTextCatalog text,
             IBeastCardListener listener)
         {
-            Clear();
-
             if (!ReferenceCheck.Validate(
                     this,
                     nameof(RosterGridView),
@@ -36,7 +34,30 @@ namespace CoreBeasts.Units
                 return;
             }
 
-            IReadOnlyList<OwnedCoreBeast> owned = roster.Owned;
+            Build(roster.Owned, palette, text, listener);
+        }
+
+        /// <summary>プロフィールで絞り込んだ所持個体だけからカードを作ります。</summary>
+        public void Build(
+            IReadOnlyList<OwnedCoreBeast> owned,
+            AttributePalette palette,
+            UiTextCatalog text,
+            IBeastCardListener listener)
+        {
+            Clear();
+
+            if (!ReferenceCheck.Validate(
+                    this,
+                    nameof(RosterGridView),
+                    ReferenceCheck.Of(nameof(content), content),
+                    ReferenceCheck.Of(nameof(cardPrefab), cardPrefab),
+                    ReferenceCheck.Of(nameof(owned), owned),
+                    ReferenceCheck.Of(nameof(palette), palette),
+                    ReferenceCheck.Of(nameof(text), text),
+                    ReferenceCheck.Of(nameof(listener), listener)))
+            {
+                return;
+            }
 
             for (int i = 0; i < owned.Count; i++)
             {

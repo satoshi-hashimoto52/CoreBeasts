@@ -472,6 +472,29 @@ namespace CoreBeasts.Battle.UI.Tests
         }
 
         [Test]
+        public void Result_ShowsTheEarnedCoreCoinWithoutGrowingPerMatch()
+        {
+            BattleResultView view =
+                views.CreateResultView(out TestBattleViews.ResultLabels labels);
+
+            view.Bind(text, uiText);
+            Transform rewardTransform = labels.FinalRoot.transform.Find("FinalRewardLabel");
+
+            Assert.That(rewardTransform, Is.Not.Null);
+            TMP_Text reward = rewardTransform.GetComponent<TMP_Text>();
+
+            view.SetMatchReward(30);
+            Assert.That(reward.text, Is.EqualTo("+30 CORE COIN"));
+
+            view.SetMatchReward(10);
+            Assert.That(reward.text, Is.EqualTo("+10 CORE COIN"));
+            Assert.That(labels.FinalRoot.transform.childCount, Is.EqualTo(3));
+
+            view.HideAll();
+            Assert.That(reward.text, Is.Empty);
+        }
+
+        [Test]
         public void Result_IsFullyWired()
         {
             BattleResultView view = views.CreateResultView(out _);
