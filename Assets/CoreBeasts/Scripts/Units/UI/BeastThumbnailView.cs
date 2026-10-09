@@ -37,6 +37,14 @@ namespace CoreBeasts.Units
 
         private AttributeColorResolver.Colors colors;
         private bool hasContent;
+        private bool usesDefinitionArt;
+        private Texture legacyBaseTexture;
+        private Rect legacyBaseUv = new Rect(0f, 0f, 1f, 1f);
+
+        private void Awake()
+        {
+            RememberLegacyBase();
+        }
 
         /// <summary>直近に適用した配色（確認・テスト用）。敗北表示でも書き換えません。</summary>
         public AttributeColorResolver.Colors LastColors { get; private set; }
@@ -65,6 +73,7 @@ namespace CoreBeasts.Units
             baseLayer = baseImage;
             primaryLayer = primaryImage;
             secondaryLayer = secondaryImage;
+            RememberLegacyBase();
             Clear();
         }
 
@@ -80,6 +89,17 @@ namespace CoreBeasts.Units
             LastColors = colors;
 
             hasContent = true;
+            usesDefinitionArt = definition.Thumbnail != null;
+
+            if (usesDefinitionArt && baseLayer != null)
+            {
+                baseLayer.texture = definition.Thumbnail.texture;
+                baseLayer.uvRect = SpriteUv(definition.Thumbnail);
+            }
+            else
+            {
+                RestoreLegacyBase();
+            }
 
             // 中身を入れ替えたら、前の個体の敗北表示は持ち越しません。
             IsDefeated = false;
@@ -111,6 +131,7 @@ namespace CoreBeasts.Units
         {
             hasContent = false;
             IsDefeated = false;
+            usesDefinitionArt = false;
 
             SetLayer(baseLayer, Color.white, false);
             SetLayer(primaryLayer, Color.white, false);
@@ -131,8 +152,8 @@ namespace CoreBeasts.Units
             if (!IsDefeated)
             {
                 SetLayer(baseLayer, Color.white, true);
-                SetLayer(primaryLayer, WithAlpha(colors.Primary, tintAlpha), true);
-                SetLayer(secondaryLayer, WithAlpha(colors.Secondary, tintAlpha), true);
+                SetLayer(primaryLayer, WithAlpha(colors.Primary, tintAlpha), !usesDefinitionArt);
+                SetLayer(secondaryLayer, WithAlpha(colors.Secondary, tintAlpha), !usesDefinitionArt);
 
                 return;
             }
@@ -140,9 +161,43 @@ namespace CoreBeasts.Units
             // 属性色をニュートラルグレーへ置き換え、3層とも減彩します。
             SetLayer(baseLayer, WithAlpha(Color.white, defeatedAlpha), true);
             SetLayer(
-                primaryLayer, WithAlpha(defeatedTint, tintAlpha * defeatedAlpha), true);
+                primaryLayer, WithAlpha(defeatedTint, tintAlpha * defeatedAlpha), !usesDefinitionArt);
             SetLayer(
-                secondaryLayer, WithAlpha(defeatedTint, tintAlpha * defeatedAlpha), true);
+                secondaryLayer, WithAlpha(defeatedTint, tintAlpha * defeatedAlpha), !usesDefinitionArt);
+        }
+
+        private static Rect SpriteUv(Sprite sprite)
+        {
+            Rect rect = sprite.textureRect;
+            Texture texture = sprite.texture;
+
+            return new Rect(
+                rect.x / texture.width,
+                rect.y / texture.height,
+                rect.width / texture.width,
+                rect.height / texture.height);
+        }
+
+        private void RememberLegacyBase()
+        {
+            if (baseLayer == null || legacyBaseTexture != null)
+            {
+                return;
+            }
+
+            legacyBaseTexture = baseLayer.texture;
+            legacyBaseUv = baseLayer.uvRect;
+        }
+
+        private void RestoreLegacyBase()
+        {
+            if (baseLayer == null)
+            {
+                return;
+            }
+
+            baseLayer.texture = legacyBaseTexture;
+            baseLayer.uvRect = legacyBaseUv;
         }
 
         private static Color WithAlpha(Color color, float alpha)

@@ -28,4 +28,4 @@ MonoBehaviour:
   skillKind: 4
   skillName: STORM BITE
   skillDescription: "\u76F8\u624B\u304CRED\u304BBLUE\u306A\u3089\u3001POWER +3\u3002"
-  thumbnail: {fileID: 21300000, guid: f34642c54bbcd43829fc6a454c4584c9, type: 3}
+  thumbnail: {fileID: 21300000, guid: 56232da6211a7ca7cd5ac3ee9abc794e, type: 3}

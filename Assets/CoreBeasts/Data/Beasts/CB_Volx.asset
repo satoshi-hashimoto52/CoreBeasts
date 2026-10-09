@@ -26,4 +26,4 @@ MonoBehaviour:
   skillKind: 1
   skillName: CRIMSON BITE
   skillDescription: "\u76F4\u524D\u306B\u51FA\u3057\u305F\u500B\u4F53\u304CRED\u306A\u3089\u3001POWER +4\u3002"
-  thumbnail: {fileID: 21300000, guid: f34642c54bbcd43829fc6a454c4584c9, type: 3}
+  thumbnail: {fileID: 21300000, guid: 6872a0ac0a2872e0fdcb7174eefb07db, type: 3}
