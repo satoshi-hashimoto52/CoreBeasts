@@ -1131,7 +1131,7 @@ namespace CoreBeasts.Battle.UI
 
             profile.RecordBattle(outcome, reward);
             PlayerProfileProvider.Save();
-            GameFlowState.AddPendingReward(reward);
+            GameFlowState.AddPendingReward(outcome, reward);
 
             grantedMatchReward = reward;
             rewardGrantedForMatch = true;

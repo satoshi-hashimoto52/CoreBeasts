@@ -371,6 +371,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CoreBeasts.Home.HomeController
   battleButton: {fileID: 2128517620}
   roster: {fileID: 11400000, guid: f41660ab37b74f31bcec5db007705766, type: 2}
+  attributePalette: {fileID: 11400000, guid: a1244a2764734349ba106934d542ed64, type: 2}
+  portraitBase: {fileID: 2800000, guid: f34642c54bbcd43829fc6a454c4584c9, type: 3}
+  portraitPrimaryMask: {fileID: 2800000, guid: 341f10ffdcd98475d8dd8af160d9f423, type: 3}
+  portraitSecondaryMask: {fileID: 2800000, guid: 7fe76b3e4eaa14b07ad522627555cc14, type: 3}
 --- !u!4 &919305132
 Transform:
   m_ObjectHideFlags: 0

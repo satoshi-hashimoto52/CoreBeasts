@@ -49,6 +49,14 @@ namespace CoreBeasts.Units.Tests
             Click("ACTIVATE100Button");
             yield return null;
 
+            // Phase 7 でガチャ演出（約1.2秒）を挟むため、獲得画面へ移るまで待ちます（上限5秒）。
+            float started = Time.realtimeSinceStartup;
+
+            while (!Find("AcquisitionPage").activeSelf && Time.realtimeSinceStartup - started < 5f)
+            {
+                yield return null;
+            }
+
             Assert.That(Find("AcquisitionPage").activeSelf, Is.True);
 
             PlayerProfile profile = PlayerProfileProvider.Get(LoadRoster());

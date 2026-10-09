@@ -56,6 +56,18 @@ namespace CoreBeasts.Units
             secondaryLayer != null ? secondaryLayer.color : Color.clear;
 
         /// <summary>着色済みの縮小立ち絵を表示します。敗北表示は解除されます。</summary>
+        /// <summary>
+        /// 実行時に組み立てた3層を渡します（Home の獲得画面のように、プレハブを使わず起動時に一度だけ組み立てる場合）。
+        /// 既存のプレハブ・シーンはシリアライズされた参照をそのまま使うため、この呼び出しは不要です。
+        /// </summary>
+        public void Bind(RawImage baseImage, RawImage primaryImage, RawImage secondaryImage)
+        {
+            baseLayer = baseImage;
+            primaryLayer = primaryImage;
+            secondaryLayer = secondaryImage;
+            Clear();
+        }
+
         public void Show(CoreBeastDefinition definition, AttributePalette palette)
         {
             if (definition == null)

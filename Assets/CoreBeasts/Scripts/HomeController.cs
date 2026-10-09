@@ -19,9 +19,26 @@ namespace CoreBeasts.Home
         [SerializeField]
         private CoreBeastRoster roster;
 
+        [Header("Acquisition portrait (Phase 7)")]
+        [Tooltip("属性の配色。UnitSet・Battle と同じアセットを使います。")]
+        [SerializeField]
+        private AttributePalette attributePalette;
+
+        [Tooltip("立ち絵の下地（UnitSet・Battle の縮小立ち絵と同じ素材）。")]
+        [SerializeField]
+        private Texture portraitBase;
+
+        [Tooltip("一次属性の着色マスク。")]
+        [SerializeField]
+        private Texture portraitPrimaryMask;
+
+        [Tooltip("二次属性の着色マスク。")]
+        [SerializeField]
+        private Texture portraitSecondaryMask;
+
         private HomeHubView hub;
         private PlayerProfile profile;
-        private GachaService gacha;
+        private GachaSummonSession summon;
 
         public CoreBeastRoster Roster => roster;
 
@@ -46,7 +63,9 @@ namespace CoreBeasts.Home
             profile = PlayerProfileProvider.Get(roster);
             PlayerProfileProvider.EnsureStarterSquad(
                 profile, roster, SquadRepositoryProvider.Shared, "1");
-            gacha = new GachaService(new SystemGachaRandomSource());
+            summon = new GachaSummonSession(
+                new GachaService(new SystemGachaRandomSource()),
+                PlayerProfileProvider.Save);
 
             TMP_Text template = battleButton.GetComponentInChildren<TMP_Text>(true);
             RectTransform host = battleButton.transform.parent as RectTransform;
@@ -62,20 +81,15 @@ namespace CoreBeasts.Home
             hub.Build(
                 host,
                 template.font,
+                roster,
+                attributePalette,
+                new[] { portraitBase, portraitPrimaryMask, portraitSecondaryMask },
+                summon,
                 LoadBattleScene,
-                () => SceneManager.LoadScene("UnitSet"),
-                PullGacha);
+                () => SceneManager.LoadScene("UnitSet"));
 
-            if (GameFlowState.HasPendingReward)
-            {
-                int battles = GameFlowState.PendingBattles;
-                int reward = GameFlowState.ConsumePendingReward();
-                hub.ShowReward(reward, battles, profile);
-            }
-            else
-            {
-                hub.ShowHome(profile);
-            }
+            // 未確認の報酬があるときだけ、Home を見せずに報酬画面から始めます。
+            hub.ShowInitial();
         }
 
         private void OnDestroy()
@@ -89,18 +103,6 @@ namespace CoreBeasts.Home
         private void LoadBattleScene()
         {
             SceneManager.LoadScene(BattleSceneName);
-        }
-
-        private void PullGacha()
-        {
-            if (!gacha.TryPull(profile, roster, out GachaResult result))
-            {
-                hub.ShowGacha(profile, "NOT ENOUGH CORE COINS");
-                return;
-            }
-
-            PlayerProfileProvider.Save();
-            hub.ShowAcquisition(result);
         }
     }
 }
