@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b009c2d1bf34f3ba4f0228816342224, type: 3}
+  m_Name: CB_Terrax
+  m_EditorClassIdentifier:
+  beastId: terrax
+  displayName: TERRAX
+  attributePowers:
+  - attribute: 1
+    power: 55
+  primaryAttribute: 1
+  hasSecondaryAttribute: 0
+  secondaryAttribute: 2
+  cost: 25
+  power: 55
+  core: 92
+  skillKind: 3
+  skillName: BULWARK BLOOM
+  skillDescription: "\u76F4\u524D\u306E\u30E9\u30A6\u30F3\u30C9\u3067\u6557\u5317\u3057\u3066\u3044\u305F\u3089\u3001POWER +6\u3002"
+  thumbnail: {fileID: 21300000, guid: 83b6e6ffb036c2581d3b4163f1510fa7, type: 3}

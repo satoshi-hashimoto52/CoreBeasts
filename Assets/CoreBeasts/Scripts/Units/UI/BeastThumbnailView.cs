@@ -44,6 +44,17 @@ namespace CoreBeasts.Units
         private void Awake()
         {
             RememberLegacyBase();
+            FitLayersToSquare();
+        }
+
+        private void OnEnable()
+        {
+            FitLayersToSquare();
+        }
+
+        private void OnRectTransformDimensionsChange()
+        {
+            FitLayersToSquare();
         }
 
         /// <summary>直近に適用した配色（確認・テスト用）。敗北表示でも書き換えません。</summary>
@@ -74,6 +85,7 @@ namespace CoreBeasts.Units
             primaryLayer = primaryImage;
             secondaryLayer = secondaryImage;
             RememberLegacyBase();
+            FitLayersToSquare();
             Clear();
         }
 
@@ -86,6 +98,7 @@ namespace CoreBeasts.Units
             }
 
             colors = AttributeColorResolver.Resolve(palette, definition);
+            FitLayersToSquare();
             LastColors = colors;
 
             hasContent = true;
@@ -204,6 +217,38 @@ namespace CoreBeasts.Units
         {
             color.a = alpha;
             return color;
+        }
+
+        private void FitLayersToSquare()
+        {
+            if (!(transform is RectTransform root))
+            {
+                return;
+            }
+
+            float size = Mathf.Min(Mathf.Abs(root.rect.width), Mathf.Abs(root.rect.height));
+            if (size <= 0f)
+            {
+                return;
+            }
+
+            FitLayer(baseLayer, size);
+            FitLayer(primaryLayer, size);
+            FitLayer(secondaryLayer, size);
+        }
+
+        private static void FitLayer(RawImage layer, float size)
+        {
+            if (layer == null)
+            {
+                return;
+            }
+
+            RectTransform rect = layer.rectTransform;
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(size, size);
         }
 
         private static void SetLayer(RawImage layer, Color color, bool visible)

@@ -30,6 +30,7 @@ namespace CoreBeasts.Battle.UI
     {
         [Header("Data")]
         [SerializeField] private CoreBeastRoster roster;
+        [SerializeField] private CoreBeastRoster cpuRoster;
         [SerializeField] private AttributePalette palette;
         [SerializeField] private UiTextCatalog text;
         [SerializeField] private BattleTextCatalog battleText;
@@ -1393,7 +1394,7 @@ namespace CoreBeasts.Battle.UI
 
             matchSource = new BattleMatchSource(
                 playerSide,
-                new RosterCpuSideBuilder(roster, random),
+                new RosterCpuSideBuilder(cpuRoster != null ? cpuRoster : roster, random),
                 random);
 
             return matchSource;

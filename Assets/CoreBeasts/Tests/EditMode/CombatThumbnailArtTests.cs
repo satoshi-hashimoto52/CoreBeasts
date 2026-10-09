@@ -19,6 +19,9 @@ namespace CoreBeasts.Units.Tests
             new object[] { "Assets/CoreBeasts/Data/Testing/CB_Volx_Green_TEST.asset", Root + "volx_combat_green.png" },
             new object[] { "Assets/CoreBeasts/Data/Testing/CB_Volx_Blue_TEST.asset", Root + "volx_combat_blue.png" },
             new object[] { "Assets/CoreBeasts/Data/Testing/CB_Volx_RedBlue_TEST.asset", Root + "volx_combat_red_blue.png" },
+            new object[] { "Assets/CoreBeasts/Data/Beasts/CB_Terrax.asset", "Assets/CoreBeasts/Art/Units/Terrax/Combat/terrax_combat_green.png" },
+            new object[] { "Assets/CoreBeasts/Data/Beasts/CB_Aerix.asset", "Assets/CoreBeasts/Art/Units/Aerix/Combat/aerix_combat_blue.png" },
+            new object[] { "Assets/CoreBeasts/Data/Beasts/CB_Ignix.asset", "Assets/CoreBeasts/Art/Units/Ignix/Combat/ignix_combat_red.png" },
         };
 
         [TearDown]
@@ -99,6 +102,45 @@ namespace CoreBeasts.Units.Tests
             Assert.That(baseLayer.texture, Is.SameAs(legacy));
             Assert.That(primaryLayer.enabled, Is.True);
             Assert.That(secondaryLayer.enabled, Is.True);
+        }
+
+        [Test]
+        public void NonSquareThumbnailAreaKeepsPortraitLayersSquareAndCentered()
+        {
+            CoreBeastDefinition definition = AssetDatabase.LoadAssetAtPath<CoreBeastDefinition>(
+                "Assets/CoreBeasts/Data/Beasts/CB_Volx.asset");
+            BeastThumbnailView view = CreateView(
+                out RawImage baseLayer,
+                out RawImage primaryLayer,
+                out RawImage secondaryLayer,
+                out Texture2D _);
+            view.GetComponent<RectTransform>().sizeDelta = new Vector2(220f, 120f);
+
+            view.Show(definition, null);
+
+            foreach (RawImage layer in new[] { baseLayer, primaryLayer, secondaryLayer })
+            {
+                Assert.That(layer.rectTransform.rect.width, Is.EqualTo(120f).Within(0.01f));
+                Assert.That(layer.rectTransform.rect.height, Is.EqualTo(120f).Within(0.01f));
+                Assert.That(layer.rectTransform.anchoredPosition, Is.EqualTo(Vector2.zero));
+            }
+        }
+
+        [Test]
+        public void EnemyRosterIncludesTheThreeNewSpecies()
+        {
+            CoreBeastRoster roster = AssetDatabase.LoadAssetAtPath<CoreBeastRoster>(
+                "Assets/CoreBeasts/Data/Testing/EnemyRoster_Test.asset");
+
+            Assert.That(roster, Is.Not.Null);
+            Assert.That(roster.Owned.Count, Is.EqualTo(7));
+            HashSet<string> beastIds = new HashSet<string>();
+            for (int i = 0; i < roster.Owned.Count; i++)
+            {
+                beastIds.Add(roster.Owned[i].Definition.BeastId);
+            }
+
+            CollectionAssert.IsSubsetOf(new[] { "terrax", "aerix", "ignix" }, beastIds);
         }
 
         private BeastThumbnailView CreateView(

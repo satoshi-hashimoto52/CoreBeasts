@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b009c2d1bf34f3ba4f0228816342224, type: 3}
+  m_Name: CB_Aerix
+  m_EditorClassIdentifier:
+  beastId: aerix
+  displayName: AERIX
+  attributePowers:
+  - attribute: 2
+    power: 70
+  primaryAttribute: 2
+  hasSecondaryAttribute: 0
+  secondaryAttribute: 2
+  cost: 22
+  power: 70
+  core: 50
+  skillKind: 2
+  skillName: SONIC DIVE
+  skillDescription: "\u767B\u5834\u6642\u3001\u76F8\u624B\u306EPOWER -4\u3002"
+  thumbnail: {fileID: 21300000, guid: ac47f34e550206f90bdd4f16b2ee580c, type: 3}

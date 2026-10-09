@@ -242,7 +242,7 @@ namespace CoreBeasts.Battle.UI.Tests
             BattleScreenController controller = FindOne<BattleScreenController>();
 
             AssertAssigned(controller,
-                "roster", "palette", "text", "battleText",
+                "roster", "cpuRoster", "palette", "text", "battleText",
                 "playerCombatant", "cpuCombatant", "enemyStatus",
                 "playerWheel", "historyLane", "deployTransition", "slideUpGuide",
                 "scoreView", "resultView", "fxPlayer", "settingsView",
@@ -266,6 +266,24 @@ namespace CoreBeasts.Battle.UI.Tests
                 roster.Owned.Count,
                 Is.GreaterThanOrEqualTo(BattleSquad.UnitCount),
                 "CPU編成を7体そろえるには、所持一覧が7体以上必要です。");
+        }
+
+        [Test]
+        public void ScreenController_UsesTheDedicatedEnemyRosterWithNewSpecies()
+        {
+            BattleScreenController controller = FindOne<BattleScreenController>();
+            CoreBeastRoster cpuRoster = (CoreBeastRoster)GetField(controller, "cpuRoster");
+
+            Assert.That(cpuRoster, Is.Not.Null);
+            Assert.That(cpuRoster.Owned.Count, Is.EqualTo(BattleSquad.UnitCount));
+
+            HashSet<string> ids = new HashSet<string>();
+            for (int i = 0; i < cpuRoster.Owned.Count; i++)
+            {
+                ids.Add(cpuRoster.Owned[i].Definition.BeastId);
+            }
+
+            CollectionAssert.IsSubsetOf(new[] { "terrax", "aerix", "ignix" }, ids);
         }
 
         [Test]

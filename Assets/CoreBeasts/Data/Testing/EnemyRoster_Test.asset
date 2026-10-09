@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9fe45a0f76c45f28f1c7fba91b4c65e, type: 3}
+  m_Name: EnemyRoster_Test
+  m_EditorClassIdentifier:
+  isTestData: 1
+  owned:
+  - instanceId: cpu_volx_r
+    definition: {fileID: 11400000, guid: ce674a6a784d43babea72b75c15b8826, type: 2}
+    level: 18
+  - instanceId: cpu_volx_g
+    definition: {fileID: 11400000, guid: 2068a7e4c44d4bfd98f2b776fc6c3d06, type: 2}
+    level: 22
+  - instanceId: cpu_volx_b
+    definition: {fileID: 11400000, guid: b6dd784d65484831806442674a05631b, type: 2}
+    level: 14
+  - instanceId: cpu_volx_rb
+    definition: {fileID: 11400000, guid: af069f74e27840fc8b12de4dd22bd971, type: 2}
+    level: 11
+  - instanceId: cpu_terrax
+    definition: {fileID: 11400000, guid: 1c8edc44c1bde7c6872d1fdc016ea617, type: 2}
+    level: 20
+  - instanceId: cpu_aerix
+    definition: {fileID: 11400000, guid: 56bb06c9dce6b4dc9daf206aaec53e49, type: 2}
+    level: 17
+  - instanceId: cpu_ignix
+    definition: {fileID: 11400000, guid: 1c0dc210dba7dfbac20dff2858d992a5, type: 2}
+    level: 19
