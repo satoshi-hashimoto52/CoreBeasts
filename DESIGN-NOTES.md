@@ -13,7 +13,7 @@
 - 約 86 x 105 pt のサムネイルでも属性と個体を識別できることを評価基準にする
 - 2048 x 2048 の 6 レイヤー構成を維持する
 - 全レイヤーのピクセル位置一致と、上下左右 8% 以上の余白を維持する
-- 現在の PNG、マスク、シェーダーは今回変更しない
+- PNG とマスクの元画像は変えない（シェーダーへの色の渡し方と iOS の取り込み設定は Phase 8 で変更。下記）
 
 ## Battle core rules (確定)
 
@@ -134,7 +134,7 @@ UIやシーンに依存しないバトル中核ロジックとして確定した
 - 保存先は `SquadRepositoryProvider.Shared` に統一（UnitSetとBattleで同じ実体）
 - 7枠が埋まっていない・IDが所持一覧に無い場合は対戦を開始せず、
   `SQUAD REQUIRED` 画面から `UNIT SET` / `HOME` へ誘導する
-- 永続化は未実装のまま。アプリを終了すると編成は消える（既存仕様のまま）
+- 永続化は Phase 6 で追加（`PlayerPrefsSquadRepository`、キー `CoreBeasts.Squads.v1`）。Home を経由しない直接再生ではメモリ上のまま
 
 ### 演出
 
@@ -328,3 +328,90 @@ MY SQUAD
 - `SET` はセット切り替えが未実装のため、現在のセット名をToastで出すだけ
   （上部から撤去した SET バッジの代わり）
 - ドラッグ・タップ除外・シアンチェックなど、既存の編成操作は変更していない
+
+## Phase 4: ATTRIBUTE LINK（要点）
+
+- 直前に自分が出した個体と属性を1つ以上共有すると、チェーンがつながる（`Scripts/Battle/AttributeLink.cs`）
+- チェーン2で各属性 POWER +3、3以上で +6（上限）。元の POWER は書き換えず、そのラウンドだけ加算する
+- 判定は `BattleRoundEvaluator.Evaluate` に集約し、文脈（直前の個体・チェーン・勝敗）は `RoundSideContext` が履歴から作る
+
+## Phase 5: ユニークスキル（要点）
+
+`Scripts/Battle/UniqueSkill.cs`、種類は `Scripts/Units/Data/UniqueSkillKind.cs`。
+
+| スキル | 条件 | 効果 |
+| --- | --- | --- |
+| CRIMSON BITE | 直前に出した自分の個体が RED を含む | POWER +4 |
+| TIDAL HOWL | 無条件（登場時） | 相手の POWER -4 |
+| VERDANT FANG | 直前のラウンドで負けた | POWER +6 |
+| STORM BITE | 相手が RED か BLUE を含む | POWER +3 |
+
+STORM BITE は相手の選出で決まるため、選択前の予告をしない。
+
+## Phase 7: Home・報酬・ガチャ・獲得画面
+
+- Home シーンの中のページ遷移は `HomeFlow`（`Scripts/Units/Progression/HomeFlow.cs`）。主要なページは常に1つだけ
+- ガチャは ACTIVATE の時点で、抽選・100 コインの消費・獲得・保存を一度だけ行う（`GachaSummonSession`）。演出は見た目だけ
+- 演出の間は入力を閉じる。FX ON 1.2 秒 / OFF 0.45 秒、`unscaledDeltaTime`
+- 未確認の報酬画面はメモリ上だけで持つ（保存キーを増やさない）。コインは決着時に保存済み
+
+## Phase 8: 立ち絵素材の規格と描画方式
+
+### 素材（6レイヤーが正本）
+
+- 種ごとに `CoreBeastArtSet`（`Scripts/Units/Data/CoreBeastArtSet.cs`、例 `Data/Art/AS_Volx.asset`）を1つ作り、属性違いの定義で共有する
+- 6レイヤーは同じフォルダに `01_lineart` / `02_shading` / `03_mask_primary` / `04_mask_secondary` / `05_mask_emission` / `06_preview_neutral`
+  - 2048 x 2048、全レイヤーのピクセル位置一致、上下左右 8% 以上の余白（`CoreBeastArtSetTests` が検査）
+  - マスクはアルファだけを使い、sRGB は OFF
+- 実行時に参照するのは 06 と 03〜05 の4枚だけ。01 / 02 は制作用の正本で、参照しないのでビルドにもメモリにも乗らない
+- `CoreBeastDefinition.art` が素材を参照する。ID（`beastId` / `instanceId`）とセーブ形式は変えない
+
+### 表示
+
+| 表示 | 方式 |
+| --- | --- |
+| 詳細（UnitSet の RenderTexture） | `CoreBeastView` が定義の素材を MaterialPropertyBlock で差し替え、シェーダーで合成 |
+| 一覧・編成枠・トレイ・リング・履歴・ドラッグ・獲得画面・バトルの立ち絵 | 事前生成サムネイル（512px）を1枚表示（`BeastThumbnailView`） |
+
+- サムネイルは `CoreBeasts/サムネイルを事前生成`（`Editor/CoreBeastThumbnailBaker.cs`）で作り、素材フォルダの `Thumbnails/` に置く
+- 合成式は `CoreBeastThumbnailComposer` で、シェーダーと同じ（リニアで lerp、アルファは元の絵）。GPU の描画結果と全画素で比べるテストがある（`ThumbnailComposerGpuTests`、許容誤差 2/255）
+- 入力（配色・素材の中身・式の版）のハッシュを定義に保存し、古いままなら `CoreBeastThumbnailTests` が失敗する。パレットや素材を変えたら作り直す
+- 敗北表示は、土台をその種の無着色の元画像（06）へ戻し、その上へ種のマスクでニュートラルグレーを重ねる（従来と同じ見え方）。色付きのサムネイルを土台にしたままだと属性色が透ける。表示画素が無彩色になることを `BattleDefeatGreyPixelTests` が確かめる（バトルの大きな立ち絵と履歴欄、彩度 24/255 以下）
+- 事前生成サムネイルが無い定義は、従来どおりプレハブの3層（VOLX）で描く
+- 立ち絵の3層は、枠が縦長・横長でも中央に正方形で置く（ゆがませない）
+
+### 属性色の変換
+
+- パレットの色は sRGB。プロジェクトはリニア色空間なので、シェーダーにはリニアの値を渡す
+- 変換は `CoreBeastTint.ToLinear` の1回だけ。詳細表示は変換済みの値を `SetVector` で渡す
+- `SetColor` は Unity が自動で sRGB → リニアを行うため、変換済みの値を渡してはいけない（Phase 7 まではこれで2回変換され、パレットより暗く表示されていた）
+
+### iOS の取り込み設定
+
+| 素材 | iOS | メモリ（1枚） |
+| --- | --- | --- |
+| 03〜05 マスク | 最大 1024・ASTC 6x6 | 約 0.45 MiB（以前は RGBA32 2048 で 16 MiB） |
+| 06 元の絵 | 最大 1024・ASTC 6x6 | 約 0.45 MiB（以前は ASTC 6x6 2048 で約 1.78 MiB） |
+| サムネイル | 512・ASTC 6x6 | 約 0.11 MiB |
+
+- 元の PNG は 2048 のまま残す
+- 画質は `CoreBeasts/診断/立ち絵の圧縮の画質を比べる`（`Editor/TextureCompressionReport.cs`）で、ASTC 6x6 / 4x4 を比べられる
+
+### CPU 専用の編成
+
+- `BattleScreenController.cpuRoster`（`Data/Testing/CpuRoster_Test.asset`）。プレイヤーの所持・ガチャのデータとは別に持つ
+- 未設定なら従来どおり `roster` から組む。CPU の内部 ID には `cpu:` が付くため、プレイヤーと同じ個体 ID でも衝突しない
+
+### 種類を増やすときの手順
+
+1. 6レイヤーを規約の名前で新しいフォルダへ置く（2048、余白 8% 以上）。iOS 設定は上の表に合わせる
+2. `CoreBeastArtSet` を作り、06 と 03〜05 を設定する
+3. `CoreBeastDefinition` を作り、`art` を設定する（`beastId` は既存と重ねない）
+4. `CoreBeasts/サムネイルを事前生成` を実行する
+5. EditMode の `CoreBeastArtSetTests` / `CoreBeastThumbnailTests` が通ることを確かめる
+
+### 残課題
+
+- **iOS 実機検証は未実施**（Phase 8 は Unity Editor・Device Simulator での検証まで）。メモリ量は計算値で、実機の Memory Profiler では測っていない。Phase 9 で本格的にユニットを追加する前に、少なくとも一度は実機で描画（属性色・サムネイル・敗北表示・Safe Area）、メモリ使用量、操作（タッチ・戦闘・ガチャ・編成）を確かめる
+- 06 の元画像は、シルエットの縁のほぼ透明な画素（アルファ 2/255 程度）に見えない色が残っている。縮小時の補間で縁の1画素へわずかに混ざることがある。新しい素材を作るときは、透明部分の色を無彩色（または縁の色の延長）で書き出す
+- 定義が素材を直接参照するため、編成データを参照するシーンでは、全種の詳細用レイヤーが読み込まれる。種類が増えたら、`CoreBeastArtSet` の中だけを遅延読み込み（Addressables など）へ移す
