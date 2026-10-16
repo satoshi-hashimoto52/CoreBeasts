@@ -6,6 +6,9 @@ namespace CoreBeasts.Units
     /// <see cref="AttributePalette"/>の配色を、MaterialPropertyBlock経由で
     /// SpriteRendererへ個体別に適用します。
     /// 共有Material（M_CoreBeastTint）およびそのアセット値は変更しません。
+    ///
+    /// <see cref="CoreBeastArtSet"/>を渡すと、その種の6レイヤー素材（元の絵とマスク3枚）も
+    /// 同じ MaterialPropertyBlock で差し替えます（Phase 8）。素材が無ければ Material の既定（VOLX）のままです。
     /// </summary>
     [DisallowMultipleComponent]
     [ExecuteAlways]
@@ -22,6 +25,11 @@ namespace CoreBeasts.Units
 
         private static readonly int EmissionStrengthId =
             Shader.PropertyToID("_Emission_Strength");
+
+        private static readonly int BaseTextureId = Shader.PropertyToID("_Base_Texture");
+        private static readonly int PrimaryMaskId = Shader.PropertyToID("_Primary_Mask");
+        private static readonly int SecondaryMaskId = Shader.PropertyToID("_Secondary_Mask");
+        private static readonly int EmissionMaskId = Shader.PropertyToID("_Emission_Mask");
 
         [SerializeField]
         [Tooltip("色を適用する対象のSpriteRenderer")]
@@ -43,8 +51,15 @@ namespace CoreBeasts.Units
         [Tooltip("二次属性。2属性使用時のみ_Secondary_Colorへ反映されます。")]
         private UnitAttribute secondaryAttribute = UnitAttribute.Blue;
 
+        [SerializeField]
+        [Tooltip("6レイヤーの立ち絵素材。未設定なら Material の既定の素材のままです。")]
+        private CoreBeastArtSet art;
+
         private MaterialPropertyBlock propertyBlock;
         private bool hasLoggedMissingReference;
+        private Sprite defaultSprite;
+        private bool hasDefaultSprite;
+        private bool appliedArtTextures;
 
         /// <summary>一次属性。</summary>
         public UnitAttribute PrimaryAttribute => primaryAttribute;
@@ -54,6 +69,20 @@ namespace CoreBeasts.Units
 
         /// <summary>2属性として扱うかどうか。</summary>
         public bool UseSecondaryAttribute => useSecondaryAttribute;
+
+        /// <summary>今の素材。null なら Material の既定です。</summary>
+        public CoreBeastArtSet Art => art;
+
+        /// <summary>
+        /// 種の素材を設定します（null で既定へ戻します）。色は変えません。
+        /// 属性の設定（<see cref="SetAttribute"/> など）の前に呼ぶと、1回の反映で済みます。
+        /// </summary>
+        public void SetArt(CoreBeastArtSet value)
+        {
+            art = value;
+
+            Apply();
+        }
 
         /// <summary>単属性として設定し、即座に反映します。</summary>
         public void SetAttribute(UnitAttribute attribute)
@@ -94,17 +123,60 @@ namespace CoreBeasts.Units
 
             propertyBlock ??= new MaterialPropertyBlock();
 
-            // 既存のブロック内容を保ったまま色だけを差し替えます。
+            // 既存のブロック内容を保ったまま色と素材だけを差し替えます。
             spriteRenderer.GetPropertyBlock(propertyBlock);
 
-            propertyBlock.SetColor(PrimaryColorId, ToRenderColor(colors.Primary));
-            propertyBlock.SetColor(SecondaryColorId, ToRenderColor(colors.Secondary));
+            ApplyArt();
+
+            propertyBlock.SetVector(PrimaryColorId, ToRenderColor(colors.Primary));
+            propertyBlock.SetVector(SecondaryColorId, ToRenderColor(colors.Secondary));
 
             // 発光は混色せず、一次属性側をそのまま使います。
-            propertyBlock.SetColor(EmissionColorId, ToRenderColor(colors.Emission));
+            propertyBlock.SetVector(EmissionColorId, ToRenderColor(colors.Emission));
             propertyBlock.SetFloat(EmissionStrengthId, colors.EmissionStrength);
 
             spriteRenderer.SetPropertyBlock(propertyBlock);
+        }
+
+        /// <summary>
+        /// 素材があれば、SpriteRenderer の Sprite（形と範囲）とシェーダーの4レイヤーを差し替えます。
+        /// 無ければ、差し替えていた分だけを Material と prefab の既定へ戻します。
+        /// </summary>
+        private void ApplyArt()
+        {
+            if (!hasDefaultSprite)
+            {
+                defaultSprite = spriteRenderer.sprite;
+                hasDefaultSprite = true;
+            }
+
+            if (art != null && art.IsComplete)
+            {
+                if (spriteRenderer.sprite != art.Preview)
+                {
+                    spriteRenderer.sprite = art.Preview;
+                }
+
+                propertyBlock.SetTexture(BaseTextureId, art.BaseTexture);
+                propertyBlock.SetTexture(PrimaryMaskId, art.PrimaryMask);
+                propertyBlock.SetTexture(SecondaryMaskId, art.SecondaryMask);
+                propertyBlock.SetTexture(EmissionMaskId, art.EmissionMask);
+                appliedArtTextures = true;
+
+                return;
+            }
+
+            if (spriteRenderer.sprite != defaultSprite)
+            {
+                spriteRenderer.sprite = defaultSprite;
+            }
+
+            if (appliedArtTextures)
+            {
+                // MaterialPropertyBlock から1項目だけ消す手段が無いため、空にしてから色を書き直します。
+                propertyBlock.Clear();
+                appliedArtTextures = false;
+            }
         }
 
         private void OnEnable()
@@ -127,21 +199,16 @@ namespace CoreBeasts.Units
         }
 
         /// <summary>
-        /// Inspectorで指定した色はsRGBです。
-        /// Linearカラースペースでは、Materialアセットと同じ見え方になるよう
-        /// リニアへ変換してからシェーダへ渡します。
+        /// Inspectorで指定した色はsRGBです。Linearカラースペースでは1回だけリニアへ変換し、
+        /// 変換の入らない SetVector でシェーダへ渡します（Phase 8）。
+        ///
+        /// 以前は変換済みの値を SetColor へ渡していました。SetColor は Unity が自動で sRGB → リニアを行うため、
+        /// 2回変換されてパレットより暗く表示されていました。変換は事前生成サムネイルと同じ
+        /// <see cref="CoreBeastTint.ToLinear"/> です。
         /// </summary>
-        private static Color ToRenderColor(Color color)
+        private static Vector4 ToRenderColor(Color color)
         {
-            if (QualitySettings.activeColorSpace != ColorSpace.Linear)
-            {
-                return color;
-            }
-
-            Color converted = color.linear;
-            converted.a = color.a;
-
-            return converted;
+            return CoreBeastTint.ToShaderVector(color, QualitySettings.activeColorSpace);
         }
 
         private void LogMissingReferenceOnce()

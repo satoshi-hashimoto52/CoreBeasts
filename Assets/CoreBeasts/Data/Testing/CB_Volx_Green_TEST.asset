@@ -27,3 +27,6 @@ MonoBehaviour:
   skillName: VERDANT FANG
   skillDescription: "\u76F4\u524D\u306E\u30E9\u30A6\u30F3\u30C9\u3067\u6557\u5317\u3057\u3066\u3044\u305F\u3089\u3001POWER +6\u3002"
   thumbnail: {fileID: 21300000, guid: f34642c54bbcd43829fc6a454c4584c9, type: 3}
+  art: {fileID: 11400000, guid: 38df637428d94b309733862b6545c318, type: 2}
+  bakedThumbnail: {fileID: 21300000, guid: 4554389663f5d4717adcd319bf4c9daf, type: 3}
+  bakedThumbnailHash: ea6fca74a051e30a6c8a6f8ee1b4e14153b45d44deeff9616021afe830a27550

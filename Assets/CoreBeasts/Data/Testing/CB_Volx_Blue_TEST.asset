@@ -27,3 +27,6 @@ MonoBehaviour:
   skillName: TIDAL HOWL
   skillDescription: "\u767B\u5834\u6642\u3001\u76F8\u624B\u306EPOWER -4\u3002"
   thumbnail: {fileID: 21300000, guid: f34642c54bbcd43829fc6a454c4584c9, type: 3}
+  art: {fileID: 11400000, guid: 38df637428d94b309733862b6545c318, type: 2}
+  bakedThumbnail: {fileID: 21300000, guid: d7f95677a0a244bceb8490a80981f3ec, type: 3}
+  bakedThumbnailHash: 76b253e744c406b0cdc232e938b154c34baa765a07c73664083ca3a8755c46f4
