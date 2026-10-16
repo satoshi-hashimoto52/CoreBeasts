@@ -14,11 +14,17 @@ namespace CoreBeasts.Battle.UI
     {
         private readonly ICpuSideBuilder cpuSideBuilder;
         private readonly IRandomSource cpuSelectionRandom;
+        private readonly Func<IRandomSource, IBattleUnitSelector> cpuSelectorFactory;
 
+        /// <param name="cpuSelectorFactory">
+        /// CPU の選び方をマッチごとに作る関数。null なら無作為選出（<see cref="RandomUnitSelector"/>）です。
+        /// 製品の画面は常に null で、PlayMode テストだけが展開を固定するために渡します。
+        /// </param>
         public BattleMatchSource(
             BattleSideRoster playerSide,
             ICpuSideBuilder cpuSideBuilder,
-            IRandomSource cpuSelectionRandom)
+            IRandomSource cpuSelectionRandom,
+            Func<IRandomSource, IBattleUnitSelector> cpuSelectorFactory = null)
         {
             PlayerSide = playerSide;
 
@@ -27,6 +33,8 @@ namespace CoreBeasts.Battle.UI
 
             this.cpuSelectionRandom = cpuSelectionRandom
                 ?? throw new ArgumentNullException(nameof(cpuSelectionRandom));
+
+            this.cpuSelectorFactory = cpuSelectorFactory;
         }
 
         /// <summary>プレイヤー編成。マッチをまたいでも変わりません。</summary>
@@ -64,7 +72,9 @@ namespace CoreBeasts.Battle.UI
 
             playerSquad = PlayerSide.Squad;
             cpuSquad = cpuSide.Squad;
-            cpuSelector = new RandomUnitSelector(cpuSelectionRandom);
+            cpuSelector = cpuSelectorFactory != null
+                ? cpuSelectorFactory(cpuSelectionRandom)
+                : new RandomUnitSelector(cpuSelectionRandom);
             error = BattleError.None;
 
             return true;

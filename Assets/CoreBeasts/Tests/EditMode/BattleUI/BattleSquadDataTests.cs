@@ -432,6 +432,57 @@ namespace CoreBeasts.Battle.UI.Tests
         }
 
         [Test]
+        public void MatchSource_UsesTheRandomSelectorWhenNoFactoryIsGiven()
+        {
+            CoreBeastRoster roster = cards.CreateRoster(8);
+
+            BattleMatchSource source = new BattleMatchSource(
+                cards.CreateSide("p_"),
+                new RosterCpuSideBuilder(roster, new StepRandomSource()),
+                new StepRandomSource());
+
+            source.TryCreateMatch(
+                out BattleSquad _, out BattleSquad _,
+                out IBattleUnitSelector selector, out BattleError _);
+
+            Assert.That(selector, Is.InstanceOf<RandomUnitSelector>(), "製品の CPU は無作為選出のままです。");
+        }
+
+        [Test]
+        public void MatchSource_UsesTheGivenSelectorFactoryWithTheSameRandomSource()
+        {
+            CoreBeastRoster roster = cards.CreateRoster(8);
+            IRandomSource random = new StepRandomSource();
+            IRandomSource received = null;
+            RandomUnitSelector scripted = new RandomUnitSelector(new StepRandomSource());
+
+            BattleMatchSource source = new BattleMatchSource(
+                cards.CreateSide("p_"),
+                new RosterCpuSideBuilder(roster, new StepRandomSource()),
+                random,
+                r =>
+                {
+                    received = r;
+                    return scripted;
+                });
+
+            source.TryCreateMatch(
+                out BattleSquad _, out BattleSquad _,
+                out IBattleUnitSelector selector, out BattleError _);
+
+            Assert.That(selector, Is.SameAs(scripted));
+            Assert.That(received, Is.SameAs(random));
+        }
+
+        [Test]
+        public void ScreenController_TestCpuHooksAreUnsetByDefault()
+        {
+            // PlayMode テスト専用の差し込み口です。製品の起動経路では設定されません。
+            Assert.That(BattleScreenController.TestCpuRandomSeed, Is.Null);
+            Assert.That(BattleScreenController.TestCpuSelectorFactory, Is.Null);
+        }
+
+        [Test]
         public void MatchSource_FailsWithoutAPlayerSquad()
         {
             CoreBeastRoster roster = cards.CreateRoster(8);

@@ -30,6 +30,9 @@ namespace CoreBeasts.Battle.UI
     {
         [Header("Data")]
         [SerializeField] private CoreBeastRoster roster;
+
+        [Tooltip("CPU 専用の編成データ（Phase 8）。プレイヤーの所持・ガチャのデータとは別に持ちます。未設定なら roster から組みます。")]
+        [SerializeField] private CoreBeastRoster cpuRoster;
         [SerializeField] private AttributePalette palette;
         [SerializeField] private UiTextCatalog text;
         [SerializeField] private BattleTextCatalog battleText;
@@ -101,6 +104,18 @@ namespace CoreBeasts.Battle.UI
         [SerializeField] private TMP_Text rematchLabel;
         [SerializeField] private TMP_Text squadRequiredTitleLabel;
         [SerializeField] private TMP_Text squadRequiredHintLabel;
+
+        /// <summary>
+        /// PlayMode テスト専用の CPU の seed。null なら <see cref="cpuRandomSeed"/>（0 なら起動時刻）を使います。
+        /// シーンの Awake より前に決める必要があるため static です。製品のコードからは設定しません。
+        /// </summary>
+        internal static int? TestCpuRandomSeed;
+
+        /// <summary>
+        /// PlayMode テスト専用の CPU の選び方。null なら無作為選出です（製品の画面は常に null）。
+        /// 狙った展開を毎回同じ手順で作り、乱数次第で失敗しないようにするために使います。
+        /// </summary>
+        internal static System.Func<IRandomSource, IBattleUnitSelector> TestCpuSelectorFactory;
 
         private BattleFlowCoordinator coordinator;
         private BattleMatchSource matchSource;
@@ -1388,13 +1403,14 @@ namespace CoreBeasts.Battle.UI
                 out BattleError _);
 
             // seedを指定しない場合だけ、起動ごとに違う対戦になります。
-            IRandomSource random = new SystemRandomSource(
-                cpuRandomSeed != 0 ? cpuRandomSeed : System.Environment.TickCount);
+            int seed = TestCpuRandomSeed ?? (cpuRandomSeed != 0 ? cpuRandomSeed : System.Environment.TickCount);
+            IRandomSource random = new SystemRandomSource(seed);
 
             matchSource = new BattleMatchSource(
                 playerSide,
-                new RosterCpuSideBuilder(roster, random),
-                random);
+                new RosterCpuSideBuilder(cpuRoster != null ? cpuRoster : roster, random),
+                random,
+                TestCpuSelectorFactory);
 
             return matchSource;
         }

@@ -32,7 +32,11 @@ namespace CoreBeasts.Battle.UI.Tests
         private const string RosterPath = "Assets/CoreBeasts/Data/Testing/Roster_Test.asset";
         private const string SetId = "1";
         private const float RoundSecondsLimit = 15f;
-        private const int MaxAttempts = 15;
+        /// <summary>
+        /// 試合数の上限。CPU は固定 seed と台本（<see cref="BattleCpuScript.MostVersatile"/>）で選ぶため、
+        /// 1試合目で狙った勝敗のラウンドを作れなければ失敗です（乱数で試し直しません）。
+        /// </summary>
+        private const int MaxAttempts = 1;
 
         private ISquadRepository originalRepository;
         private BattleScreenController controller;
@@ -44,6 +48,10 @@ namespace CoreBeasts.Battle.UI.Tests
         [UnitySetUp]
         public IEnumerator SetUp()
         {
+            // CPU は固定 seed で、PLAYER が出せる勝敗の種類がいちばん多い個体を選びます。
+            // 乱数次第で狙った勝敗のラウンドを作れない、ということが起きません。
+            BattleCpuScript.Install(BattleCpuScript.MostVersatile);
+
             originalRepository = SquadRepositoryProvider.Shared;
             SquadRepositoryProvider.SetShared(new InMemorySquadRepository());
 
@@ -72,6 +80,7 @@ namespace CoreBeasts.Battle.UI.Tests
         [TearDown]
         public void TearDown()
         {
+            BattleCpuScript.Uninstall();
             SquadRepositoryProvider.SetShared(originalRepository);
         }
 

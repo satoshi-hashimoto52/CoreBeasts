@@ -20,9 +20,9 @@ namespace CoreBeasts.Battle.UI.Tests
     /// 実際の Battle シーンと実ラウンド経路で確かめます。
     ///
     /// 勝敗は本物の <see cref="BattleRules"/>、決着は本物の <see cref="BattleSession"/> が決めます。
-    /// テストは CPU が非公開で選んだ個体を読むだけで（書き換えません）、狙った展開へ届く勝敗を
-    /// <see cref="BattleSession.EvaluateMatchState"/>（純粋関数）で探し、その勝敗になる個体を出します。
-    /// CPU 編成は乱数のため、狙った展開にならなかった試合は最後まで進めてから再戦して試し直します。
+    /// テストは試合の残りの出し順を <see cref="BattleMatchPlan"/> で先読みし、狙った展開へ届く台本を作ります。
+    /// CPU は固定 seed と台本で選ぶため（<see cref="BattleCpuScript"/>）、毎回同じ手順で同じ展開になります。
+    /// 決着の判定は <see cref="BattleSession.EvaluateMatchState"/>（純粋関数）をそのまま使います。
     /// </summary>
     public sealed class BattleEarlyClinchPlayModeTests
     {
@@ -31,10 +31,9 @@ namespace CoreBeasts.Battle.UI.Tests
         private const string SetId = "1";
         private const float RoundSecondsLimit = 15f;
         /// <summary>
-        /// 狙った展開まで試し直す試合数の上限。3対1 の早期決着には引き分けが2回要りますが、
-        /// ATTRIBUTE LINK（Phase 4）の加算で POWER の同値が減り、引き分けが起きにくくなったため多めに取ります。
+        /// 試合数の上限。台本で狙った展開を作るため、1試合目で届かなければ失敗です（乱数で試し直しません）。
         /// </summary>
-        private const int MaxAttempts = 40;
+        private const int MaxAttempts = 1;
 
         private ISquadRepository originalRepository;
         private BattleScreenController controller;
@@ -43,10 +42,15 @@ namespace CoreBeasts.Battle.UI.Tests
         private BattleResultView resultView;
         private BattleScorePipsView pips;
         private BattleTextCatalog catalog;
+        private BattleMatchPlan plan;
 
         [UnitySetUp]
         public IEnumerator SetUp()
         {
+            plan = null;
+            BattleCpuScript.Install((session, candidates) =>
+                plan != null && plan.TryGet(session, out BattleMatchPlan.Round round) ? round.Cpu : null);
+
             originalRepository = SquadRepositoryProvider.Shared;
             SquadRepositoryProvider.SetShared(new InMemorySquadRepository());
 
@@ -81,6 +85,7 @@ namespace CoreBeasts.Battle.UI.Tests
         [TearDown]
         public void TearDown()
         {
+            BattleCpuScript.Uninstall();
             SquadRepositoryProvider.SetShared(originalRepository);
         }
 
@@ -421,23 +426,24 @@ namespace CoreBeasts.Battle.UI.Tests
             return false;
         }
 
-        /// <summary>このラウンドで狙いへ届く勝敗の候補。</summary>
-        private static List<RoundWinner> Wanted(Scenario s, BattleSession session)
+        /// <summary>この試合の全ラウンドの勝敗（終わった分＋先読み）が、狙いへ届くか。</summary>
+        private static BattleMatchPlan.Step Check(Scenario s, IReadOnlyList<RoundWinner> outcomes)
         {
-            List<RoundWinner> wanted = new List<RoundWinner>();
+            int p = 0;
+            int c = 0;
 
-            foreach (RoundWinner o in Outcomes)
+            foreach (RoundWinner o in outcomes)
             {
-                int p = session.PlayerWins + (o == RoundWinner.Player ? 1 : 0);
-                int c = session.CpuWins + (o == RoundWinner.Cpu ? 1 : 0);
-
-                if (Reachable(s, p, c, session.CompletedRounds + 1, o))
-                {
-                    wanted.Add(o);
-                }
+                p += o == RoundWinner.Player ? 1 : 0;
+                c += o == RoundWinner.Cpu ? 1 : 0;
             }
 
-            return wanted;
+            if (!Reachable(s, p, c, outcomes.Count, outcomes[outcomes.Count - 1]))
+            {
+                return BattleMatchPlan.Step.Dead;
+            }
+
+            return outcomes.Count == s.Rounds ? BattleMatchPlan.Step.Complete : BattleMatchPlan.Step.Continue;
         }
 
         private bool Achieved(Scenario s, MatchTrace m)
@@ -540,11 +546,20 @@ namespace CoreBeasts.Battle.UI.Tests
 
         private IEnumerator PlayMatch(Scenario s, MatchTrace m, System.Func<bool> stop)
         {
+            if (controller.Coordinator.State == BattleUiState.Selecting)
+            {
+                plan = BattleMatchPlan.Find(controller.Coordinator.Session, o => Check(s, o));
+
+                // 届く出し順が無ければ残りの先頭を出して最後まで進めます（狙いの成否は呼び出し側が確かめます）。
+                TestContext.WriteLine(plan != null ? plan.Describe() : "狙った展開へ届く出し順がありません（seed " + BattleCpuScript.Seed + "）。");
+            }
+
             while (controller.Coordinator.State == BattleUiState.Selecting)
             {
                 BattleSession session = controller.Coordinator.Session;
-                List<RoundWinner> wanted = Wanted(s, session);
-                string pick = Pick(s, session, wanted, out bool onGoal);
+                BattleMatchPlan.Round planned = default;
+                bool onGoal = plan != null && plan.TryGet(session, out planned);
+                string pick = onGoal ? planned.Player.InstanceId : session.PlayerAvailableUnits[0].InstanceId;
 
                 m.OffGoal |= !onGoal;
 
@@ -699,6 +714,11 @@ namespace CoreBeasts.Battle.UI.Tests
 
                 r.Winner = controller.Coordinator.LastResult.Winner;
                 m.Scores.Add(session.PlayerWins + "-" + session.CpuWins);
+
+                if (onGoal)
+                {
+                    Assert.That(r.Winner, Is.EqualTo(planned.Winner), "先読みと実際の勝敗が違います。" + plan.Describe());
+                }
             }
         }
 
@@ -726,76 +746,6 @@ namespace CoreBeasts.Battle.UI.Tests
                     Assert.That(Time.realtimeSinceStartup - startedAt, Is.LessThan(RoundSecondsLimit * 8));
                 }
             }
-        }
-
-        /// <summary>
-        /// CPU の非公開の選出を読み、狙った勝敗になる個体を選びます（勝敗は BattleRules が決めます）。
-        /// 候補の勝敗を出せる個体が無ければ、残りの先頭を返し、狙いから外れたと記録します。
-        /// </summary>
-        private static string Pick(Scenario s, BattleSession session, List<RoundWinner> wanted, out bool onGoal)
-        {
-            FieldInfo field = typeof(BattleSession).GetField("pendingCpuUnit", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            Assert.That(field, Is.Not.Null);
-
-            BattleUnit cpu = (BattleUnit)field.GetValue(session);
-            IReadOnlyList<BattleUnit> available = session.PlayerAvailableUnits;
-
-            // 残り2体なら、CPU の最後の1体も決まっています。最終ラウンドまで読んで、
-            // 両方のラウンドが狙いどおりになる出し順を選びます（ATTRIBUTE LINK のチェーンも含めて予想します）。
-            if (TryPickForLastTwoRounds(s, session, out string twoRound))
-            {
-                onGoal = true;
-                return twoRound;
-            }
-
-            foreach (RoundWinner want in wanted)
-            {
-                foreach (BattleUnit unit in available)
-                {
-                    if (BattleLinkPrediction.Resolve(session, unit, cpu).Winner == want)
-                    {
-                        onGoal = true;
-                        return unit.InstanceId;
-                    }
-                }
-            }
-
-            onGoal = false;
-            return available[0].InstanceId;
-        }
-
-        /// <summary>
-        /// 残り2ラウンドを両方読み、今回と最終ラウンドの勝敗がどちらも狙いへ届く個体を選びます。
-        /// </summary>
-        private static bool TryPickForLastTwoRounds(Scenario s, BattleSession session, out string pick)
-        {
-            pick = null;
-            int done = session.CompletedRounds;
-
-            foreach (BattleLinkPrediction.TwoRoundPlan plan in BattleLinkPrediction.PredictLastTwoRounds(session))
-            {
-                int p = session.PlayerWins + (plan.First == RoundWinner.Player ? 1 : 0);
-                int c = session.CpuWins + (plan.First == RoundWinner.Cpu ? 1 : 0);
-
-                if (!Reachable(s, p, c, done + 1, plan.First))
-                {
-                    continue;
-                }
-
-                // 今回で狙いどおりに決着するなら、最終ラウンドは行われません。
-                bool decided = BattleSession.EvaluateMatchState(p, c, done + 1, BattleSession.MaxRounds) != BattleMatchState.InProgress;
-                int p2 = p + (plan.Second == RoundWinner.Player ? 1 : 0);
-                int c2 = c + (plan.Second == RoundWinner.Cpu ? 1 : 0);
-
-                if (decided || Reachable(s, p2, c2, done + 2, plan.Second))
-                {
-                    pick = plan.Now.InstanceId;
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         // ---------------- 道具 ----------------
