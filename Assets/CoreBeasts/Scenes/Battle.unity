@@ -10353,6 +10353,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: CoreBeasts.Battle.UI::CoreBeasts.Battle.UI.BattleScreenController
   roster: {fileID: 11400000, guid: f41660ab37b74f31bcec5db007705766, type: 2}
+  cpuRoster: {fileID: 11400000, guid: 86603b2b675f400ba2a650f7074b928a, type: 2}
   palette: {fileID: 11400000, guid: a1244a2764734349ba106934d542ed64, type: 2}
   text: {fileID: 11400000, guid: 8db1bc01fcdb4619b456cdee658e209c, type: 2}
   battleText: {fileID: 11400000, guid: 7961dea3eddc4a269a5f37ae5a589ad3, type: 2}

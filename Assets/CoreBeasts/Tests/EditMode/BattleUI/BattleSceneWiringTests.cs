@@ -237,12 +237,32 @@ namespace CoreBeasts.Battle.UI.Tests
         // ---------------- 進行役 ----------------
 
         [Test]
+        public void ScreenController_UsesADedicatedCpuRosterThatCanFieldASquad()
+        {
+            BattleScreenController controller = FindOne<BattleScreenController>();
+            CoreBeastRoster roster = (CoreBeastRoster)GetField(controller, "roster");
+            CoreBeastRoster cpuRoster = (CoreBeastRoster)GetField(controller, "cpuRoster");
+
+            Assert.That(cpuRoster, Is.Not.Null);
+            Assert.That(cpuRoster, Is.Not.SameAs(roster), "CPU の編成はプレイヤーの所持データと別に持ちます。");
+            Assert.That(cpuRoster.Owned.Count, Is.GreaterThanOrEqualTo(BattleSquad.UnitCount), "CPU が7体を組めます。");
+
+            HashSet<string> ids = new HashSet<string>();
+
+            foreach (OwnedCoreBeast beast in cpuRoster.Owned)
+            {
+                Assert.That(beast.IsValid, Is.True, "CPU の個体の定義が切れています。");
+                Assert.That(ids.Add(beast.InstanceId), Is.True, beast.InstanceId + " が重複しています。");
+            }
+        }
+
+        [Test]
         public void ScreenController_ExistsOnceAndIsFullyWired()
         {
             BattleScreenController controller = FindOne<BattleScreenController>();
 
             AssertAssigned(controller,
-                "roster", "palette", "text", "battleText",
+                "roster", "cpuRoster", "palette", "text", "battleText",
                 "playerCombatant", "cpuCombatant", "enemyStatus",
                 "playerWheel", "historyLane", "deployTransition", "slideUpGuide",
                 "scoreView", "resultView", "fxPlayer", "settingsView",

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 
 using CoreBeasts.Units;
 using NUnit.Framework;
@@ -19,9 +18,9 @@ namespace CoreBeasts.Battle.UI.Tests
     /// <summary>
     /// Phase 3「勝利コア・FINAL CORE・CORE BREAK」を、実際の Battle シーンで確かめます。
     ///
-    /// 勝敗は本物の<see cref="BattleRules"/>が決めます。テストは CPU が非公開で選んだ個体を
-    /// 読むだけで（書き換えません）、望む勝敗になるプレイヤー個体を循環リングの入口から出します。
-    /// CPU 編成は乱数のため、狙った展開にならなかった試合は最後まで進めてから再戦して試し直します。
+    /// 勝敗は本物の<see cref="BattleRules"/>が決めます。テストは試合の残りの出し順を <see cref="BattleMatchPlan"/> で
+    /// 先読みし、望む展開になるプレイヤー個体を循環リングの入口から出します。
+    /// CPU は固定 seed と台本で選ぶため（<see cref="BattleCpuScript"/>）、毎回同じ手順で同じ展開になります。
     /// </summary>
     public sealed class BattleMatchCuePlayModeTests
     {
@@ -30,10 +29,9 @@ namespace CoreBeasts.Battle.UI.Tests
         private const string SetId = "1";
         private const float RoundSecondsLimit = 15f;
         /// <summary>
-        /// 狙った展開まで試し直す試合数の上限。「3対3 の後に最終ラウンドを引き分け」のように、
-        /// 最後に残った個体と CPU の最後の選出の組み合わせに左右される展開があるため、多めに取ります。
+        /// 試合数の上限。台本で狙った展開を作るため、1試合目で届かなければ失敗です（乱数で試し直しません）。
         /// </summary>
-        private const int MaxAttempts = 40;
+        private const int MaxAttempts = 1;
 
         /// <summary>試合演出の間も動いてはいけないもの。</summary>
         private static readonly string[] StaticNames =
@@ -49,10 +47,15 @@ namespace CoreBeasts.Battle.UI.Tests
         private BattleMatchCueView cue;
         private VictoryCoreView victory;
         private BattleResultView resultView;
+        private BattleMatchPlan plan;
 
         [UnitySetUp]
         public IEnumerator SetUp()
         {
+            plan = null;
+            BattleCpuScript.Install((session, candidates) =>
+                plan != null && plan.TryGet(session, out BattleMatchPlan.Round round) ? round.Cpu : null);
+
             originalRepository = SquadRepositoryProvider.Shared;
             SquadRepositoryProvider.SetShared(new InMemorySquadRepository());
 
@@ -85,6 +88,7 @@ namespace CoreBeasts.Battle.UI.Tests
         [TearDown]
         public void TearDown()
         {
+            BattleCpuScript.Uninstall();
             SquadRepositoryProvider.SetShared(originalRepository);
         }
 
@@ -510,11 +514,20 @@ namespace CoreBeasts.Battle.UI.Tests
         {
             rec.CaptureStatic();
 
+            if (controller.Coordinator.State == BattleUiState.Selecting)
+            {
+                plan = BattleMatchPlan.Find(controller.Coordinator.Session, o => Check(goal, o));
+
+                // 届く出し順が無ければ残りの先頭を出して最後まで進めます（狙いの成否は呼び出し側が確かめます）。
+                TestContext.WriteLine(plan != null ? plan.Describe() : "狙った展開へ届く出し順がありません（seed " + BattleCpuScript.Seed + "）。");
+            }
+
             while (controller.Coordinator.State == BattleUiState.Selecting)
             {
                 BattleSession session = controller.Coordinator.Session;
-                bool onGoal = true;
-                string pick = PickForLastTwoRounds(session, goal) ?? Pick(session, goal(session.PlayerWins, session.CpuWins), out onGoal);
+                BattleMatchPlan.Round planned = default;
+                bool onGoal = plan != null && plan.TryGet(session, out planned);
+                string pick = onGoal ? planned.Player.InstanceId : session.PlayerAvailableUnits[0].InstanceId;
 
                 rec.OffGoal |= !onGoal;
 
@@ -544,6 +557,12 @@ namespace CoreBeasts.Battle.UI.Tests
                 rec.Frame(round);
                 rec.EndRound(round, winsBefore);
 
+                if (onGoal)
+                {
+                    Assert.That(controller.Coordinator.LastResult.Winner, Is.EqualTo(planned.Winner),
+                        "先読みと実際の勝敗が違います。" + plan.Describe());
+                }
+
                 if (rec.Stopped)
                 {
                     yield break;
@@ -552,71 +571,30 @@ namespace CoreBeasts.Battle.UI.Tests
         }
 
         /// <summary>
-        /// 残り2体なら最終ラウンドまで読み、今回と最終ラウンドの勝敗がどちらも狙いどおりになる出し順を選びます。
-        /// ATTRIBUTE LINK（Phase 4）の加算で POWER の同値が減り、最後の引き分けのような展開は
-        /// 1ラウンド先だけを見ていると届きにくくなったためです。届く出し順が無ければ null を返します。
+        /// この試合の全ラウンドの勝敗（終わった分＋先読み）が、各ラウンドの狙い（<see cref="Goal"/>）どおりか。
+        /// 狙いどおりのまま試合が決着すれば届いたとみなします。
         /// </summary>
-        private static string PickForLastTwoRounds(BattleSession session, Goal goal)
+        private static BattleMatchPlan.Step Check(Goal goal, IReadOnlyList<RoundWinner> outcomes)
         {
-            foreach (BattleLinkPrediction.TwoRoundPlan plan in BattleLinkPrediction.PredictLastTwoRounds(session))
+            int p = 0;
+            int c = 0;
+
+            foreach (RoundWinner o in outcomes)
             {
-                if (System.Array.IndexOf(goal(session.PlayerWins, session.CpuWins), plan.First) < 0)
+                RoundWinner[] wanted = goal(p, c);
+
+                if (wanted.Length > 0 && Array.IndexOf(wanted, o) < 0)
                 {
-                    continue;
+                    return BattleMatchPlan.Step.Dead;
                 }
 
-                int p = session.PlayerWins + (plan.First == RoundWinner.Player ? 1 : 0);
-                int c = session.CpuWins + (plan.First == RoundWinner.Cpu ? 1 : 0);
-                bool decided = BattleSession.EvaluateMatchState(p, c, session.CompletedRounds + 1, BattleSession.MaxRounds) != BattleMatchState.InProgress;
-
-                if (decided || System.Array.IndexOf(goal(p, c), plan.Second) >= 0)
-                {
-                    return plan.Now.InstanceId;
-                }
+                p += o == RoundWinner.Player ? 1 : 0;
+                c += o == RoundWinner.Cpu ? 1 : 0;
             }
 
-            return null;
-        }
-
-        /// <summary>
-        /// CPU の非公開の選出を読み、狙った勝敗になる個体を選びます（勝敗は BattleRules が決めます）。
-        /// 狙いどおりの個体が無ければ、引き分けにならない個体、それも無ければ残りの先頭を返します。
-        /// </summary>
-        private static string Pick(BattleSession session, RoundWinner[] wanted, out bool onGoal)
-        {
-            FieldInfo field = typeof(BattleSession).GetField("pendingCpuUnit", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            Assert.That(field, Is.Not.Null, "BattleSession.pendingCpuUnit が見つかりません。");
-
-            BattleUnit cpu = (BattleUnit)field.GetValue(session);
-
-            Assert.That(cpu, Is.Not.Null, "CPU の選出が済んでいません。");
-
-            IReadOnlyList<BattleUnit> available = session.PlayerAvailableUnits;
-
-            foreach (RoundWinner want in wanted)
-            {
-                foreach (BattleUnit unit in available)
-                {
-                    if (BattleLinkPrediction.Resolve(session, unit, cpu).Winner == want)
-                    {
-                        onGoal = true;
-                        return unit.InstanceId;
-                    }
-                }
-            }
-
-            onGoal = false;
-
-            foreach (BattleUnit unit in available)
-            {
-                if (BattleLinkPrediction.Resolve(session, unit, cpu).Winner != RoundWinner.Draw)
-                {
-                    return unit.InstanceId;
-                }
-            }
-
-            return available[0].InstanceId;
+            return BattleSession.EvaluateMatchState(p, c, outcomes.Count, BattleSession.MaxRounds) != BattleMatchState.InProgress
+                ? BattleMatchPlan.Step.Complete
+                : BattleMatchPlan.Step.Continue;
         }
 
         private IEnumerator WaitRoundEnd()

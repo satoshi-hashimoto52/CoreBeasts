@@ -72,6 +72,18 @@ namespace CoreBeasts.Units
         [Tooltip("一覧・枠に出す小さな立ち絵")]
         private Sprite thumbnail;
 
+        [SerializeField]
+        [Tooltip("6レイヤーの立ち絵素材。未設定なら従来どおり画面側の既定の素材（VOLX）で描きます。")]
+        private CoreBeastArtSet art;
+
+        [SerializeField]
+        [Tooltip("art と属性色から事前生成した 512px のサムネイル（Tools から生成します）。")]
+        private Sprite bakedThumbnail;
+
+        [SerializeField]
+        [Tooltip("bakedThumbnail を生成したときの入力のハッシュ。素材や配色が変わったら作り直します。")]
+        private string bakedThumbnailHash = string.Empty;
+
         public string BeastId => beastId;
 
         public string DisplayName => displayName;
@@ -149,5 +161,13 @@ namespace CoreBeasts.Units
         public string SkillDescription => skillDescription;
 
         public Sprite Thumbnail => thumbnail;
+
+        /// <summary>6レイヤーの立ち絵素材。null なら画面側の既定の素材です。</summary>
+        public CoreBeastArtSet Art => art;
+
+        /// <summary>事前生成したサムネイル。null なら実行時に3層を重ねて描きます。</summary>
+        public Sprite BakedThumbnail => bakedThumbnail;
+
+        public string BakedThumbnailHash => bakedThumbnailHash;
     }
 }

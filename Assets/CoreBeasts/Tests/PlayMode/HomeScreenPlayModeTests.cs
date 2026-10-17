@@ -308,9 +308,16 @@ namespace CoreBeasts.Units.Tests
                 CoreBeastDefinition shown = FindDefinition(roster, Label("AcquisitionPage", "AcquisitionName"), Label("AcquisitionPage", "PowerValue"));
                 Color expected = palette.GetColors(shown.PrimaryAttribute).PrimaryColor;
 
-                Assert.That(portrait.PrimaryLayerColor.r, Is.EqualTo(expected.r).Within(0.01f), "立ち絵の一次属性の色");
-                Assert.That(portrait.PrimaryLayerColor.g, Is.EqualTo(expected.g).Within(0.01f));
-                Assert.That(portrait.PrimaryLayerColor.b, Is.EqualTo(expected.b).Within(0.01f));
+                // Phase 8: 立ち絵は事前生成サムネイル（属性色は詳細表示と同じ式で付いています）です。
+                // 出ている絵が獲得した個体のものであることと、その画素の色（一次マスクの範囲）が
+                // 獲得した個体の一次属性の色にいちばん近いことを、表示中のテクスチャで確かめます。
+                Assert.That(portrait.UsesBakedThumbnail, Is.True, "獲得画面は事前生成サムネイルを出します。");
+                Assert.That(portrait.DisplayedTexture, Is.SameAs(shown.BakedThumbnail.texture), "立ち絵は獲得した個体の絵です。");
+                Assert.That(portrait.AreTintLayersVisible, Is.False, "事前生成サムネイルへ色を重ねません（二重の着色になるため）。");
+
+                Color displayed = MeanColourInMask(portrait.DisplayedTexture, shown.Art.PrimaryMask);
+                Assert.That(ClosestPrimaryAttribute(palette, displayed), Is.EqualTo(shown.PrimaryAttribute),
+                    "立ち絵の一次属性の色（表示中の画素の平均 " + displayed + "）");
 
                 colours.Add(new Color(expected.r, expected.g, expected.b));
             }
@@ -634,6 +641,110 @@ namespace CoreBeasts.Units.Tests
 
             Assert.Fail(displayName + " " + power + " の定義が見つかりません。");
             return null;
+        }
+
+        /// <summary>
+        /// 表示中のテクスチャ（sRGB）で、マスクのアルファが 0.9 以上の範囲にある不透明な画素の平均色（sRGB）。
+        /// テクスチャは読み取り不可のため、同じ大きさの RenderTexture へ写して読みます。
+        /// </summary>
+        private static Color MeanColourInMask(Texture shown, Texture mask)
+        {
+            Color32[] pixels = ReadTexels(shown, srgb: true);
+            Color32[] maskPixels = ReadTexels(mask, srgb: false);
+            int size = shown.width;
+            int maskSize = mask.width;
+            int step = maskSize / size;
+            double r = 0;
+            double g = 0;
+            double b = 0;
+            int count = 0;
+
+            Assert.That(step * size, Is.EqualTo(maskSize), "マスクとサムネイルの大きさが整数倍ではありません。");
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    int sum = 0;
+
+                    for (int dy = 0; dy < step; dy++)
+                    {
+                        for (int dx = 0; dx < step; dx++)
+                        {
+                            sum += maskPixels[(y * step + dy) * maskSize + x * step + dx].a;
+                        }
+                    }
+
+                    Color32 p = pixels[y * size + x];
+
+                    if (sum >= 0.9f * 255f * step * step && p.a > 200)
+                    {
+                        r += p.r;
+                        g += p.g;
+                        b += p.b;
+                        count++;
+                    }
+                }
+            }
+
+            Assert.That(count, Is.GreaterThan(100), "一次マスクの範囲が小さすぎます。");
+            return new Color((float)(r / count / 255.0), (float)(g / count / 255.0), (float)(b / count / 255.0), 1f);
+        }
+
+        /// <summary>色相の向き（明るさを除いた RGB の比）がいちばん近い一次属性色。</summary>
+        private static UnitAttribute ClosestPrimaryAttribute(AttributePalette palette, Color colour)
+        {
+            UnitAttribute best = UnitAttribute.Red;
+            float bestDistance = float.MaxValue;
+
+            foreach (UnitAttribute attribute in new[] { UnitAttribute.Red, UnitAttribute.Green, UnitAttribute.Blue })
+            {
+                Color candidate = palette.GetColors(attribute).PrimaryColor;
+                float distance = (Chroma(colour) - Chroma(candidate)).magnitude;
+
+                if (distance < bestDistance)
+                {
+                    best = attribute;
+                    bestDistance = distance;
+                }
+            }
+
+            return best;
+        }
+
+        private static Vector3 Chroma(Color c)
+        {
+            float sum = Mathf.Max(1e-4f, c.r + c.g + c.b);
+            return new Vector3(c.r / sum, c.g / sum, c.b / sum);
+        }
+
+        private static Color32[] ReadTexels(Texture texture, bool srgb)
+        {
+            RenderTexture copy = new RenderTexture(new RenderTextureDescriptor(texture.width, texture.height, RenderTextureFormat.ARGB32, 0)
+            {
+                sRGB = srgb,
+                msaaSamples = 1,
+                useMipMap = false,
+            });
+            Texture2D readback = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
+            RenderTexture previous = RenderTexture.active;
+
+            try
+            {
+                copy.Create();
+                Graphics.Blit(texture, copy);
+                RenderTexture.active = copy;
+                readback.ReadPixels(new Rect(0f, 0f, texture.width, texture.height), 0, 0);
+                readback.Apply(false);
+                return readback.GetPixels32();
+            }
+            finally
+            {
+                RenderTexture.active = previous;
+                copy.Release();
+                UnityEngine.Object.Destroy(copy);
+                UnityEngine.Object.Destroy(readback);
+            }
         }
 
         private static CoreBeastRoster LoadRoster()

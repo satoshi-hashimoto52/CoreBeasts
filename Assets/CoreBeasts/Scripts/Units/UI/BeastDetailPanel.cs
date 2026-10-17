@@ -70,6 +70,9 @@ namespace CoreBeasts.Units
 
             if (portraitView != null)
             {
+                // 種ごとの素材を先に差し替えます（色はこのすぐ後の属性設定で反映されます）。
+                portraitView.SetArt(definition.Art);
+
                 if (definition.HasSecondaryAttribute)
                 {
                     portraitView.SetAttributes(
